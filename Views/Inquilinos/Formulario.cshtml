@@ -1,0 +1,31 @@
+@model inmobiliaria.Models.Inquilino
+@{
+    ViewData["Title"] = Model == null ? "Registrar inquilino" : "Editar inquilino";
+}
+<form asp-action="Guardar" method="POST">
+
+    <div>
+        <label asp-for="Nombre"></label>
+        <input asp-for="Nombre">
+    </div>
+    <div>
+        <input type="hidden" asp-for="Id">
+    </div>
+    <div>
+        <label asp-for="Apellido"></label>
+        <input asp-for="Apellido">
+    </div>
+    <div>
+        <label asp-for="Dni"></label>
+        <input asp-for="Dni">
+    </div>
+    <div>
+        <label asp-for="Telefono"></label>
+        <input asp-for="Telefono">
+    </div>
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email">
+    </div>
+    <button type="submit">Guardar</button>
+</form>
