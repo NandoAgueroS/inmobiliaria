@@ -4,28 +4,30 @@
 }
 <form asp-action="Guardar" method="POST">
 
-    <div>
+    <div class="form-group">
+        <div>
         <label asp-for="Nombre"></label>
-        <input asp-for="Nombre">
+        <input class="form-control" asp-for="Nombre">
+    </div>
+    <div>
+        <label asp-for="Apellido"></label>
+        <input class="form-control" asp-for="Apellido">
+    </div>
+    <div>
+        <label asp-for="Dni"></label>
+        <input class="form-control" asp-for="Dni">
+    </div>
+    <div>
+        <label asp-for="Telefono"></label>
+        <input class="form-control" asp-for="Telefono">
+    </div>
+    <div>
+        <label asp-for="Email"></label>
+        <input class="form-control" asp-for="Email">
     </div>
     <div>
         <input type="hidden" asp-for="Id">
     </div>
-    <div>
-        <label asp-for="Apellido"></label>
-        <input asp-for="Apellido">
-    </div>
-    <div>
-        <label asp-for="Dni"></label>
-        <input asp-for="Dni">
-    </div>
-    <div>
-        <label asp-for="Telefono"></label>
-        <input asp-for="Telefono">
-    </div>
-    <div>
-        <label asp-for="Email"></label>
-        <input asp-for="Email">
-    </div>
-    <button type="submit">Guardar</button>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
 </form>

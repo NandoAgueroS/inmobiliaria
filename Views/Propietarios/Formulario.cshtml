@@ -4,32 +4,33 @@
     ViewData["Title"] = Model == null ? "Registrar Propietario" : "Editar Propietario";
 }
 <form asp-action="Guardar" method="POST">
+    <div class="form-group" >
     <div>
         <label asp-for="Nombre"></label>
-        <input  asp-for="Nombre">
+        <input class="form-control" asp-for="Nombre">
     </div>
-    </div>
+    <div>
         <label asp-for="Apellido"></label>
-        <input  asp-for="Apellido">
+        <input class="form-control" asp-for="Apellido">
     </div>
-        </div>
+        <div>
         <label asp-for="Dni"></label>
-        <input  asp-for="Dni">
+        <input class="form-control" asp-for="Dni">
     </div>
-        </div>
+        <div>
         <label asp-for="Telefono"></label>
-        <input  asp-for="Telefono">
+        <input class="form-control" asp-for="Telefono">
     </div>
-        </div>
+        <div>
         <label asp-for="Email"></label>
-        <input asp-for="Email">
+        <input class="form-control" asp-for="Email">
     </div>
-        </div>
+    <div>
         <label asp-for="Direccion"></label>
-        <input asp-for="Direccion">
+        <input class="form-control" asp-for="Direccion">
     </div>
     <input type="hidden" asp-for="Id" >
 
-    <button type="submit">Guardar</button>
-
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</div>
 </form>

@@ -21,15 +21,15 @@ namespace inmobiliaria.Models
                 {nameof(Inquilino.Dni)},
                 {nameof(Inquilino.Telefono)},
                 {nameof(Inquilino.Email)},
-                {nameof(Inquilino.Estado)}) VALUES(@nombre, @apellido, @telefono, @dni, @email, 1);
+                {nameof(Inquilino.Estado)}) VALUES(@Nombre, @Apellido, @Telefono, @Dni, @Email, 1);
                 SELECT LAST_INSERT_ID();";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@nombre", i.Nombre);
-                    command.Parameters.AddWithValue("@apellido", i.Apellido);
-                    command.Parameters.AddWithValue("@dni", i.Dni);
-                    command.Parameters.AddWithValue("@telefono", i.Telefono);
-                    command.Parameters.AddWithValue("@email", i.Email);
+                    command.Parameters.AddWithValue("@Nombre", i.Nombre);
+                    command.Parameters.AddWithValue("@Apellido", i.Apellido);
+                    command.Parameters.AddWithValue("@Dni", i.Dni);
+                    command.Parameters.AddWithValue("@Telefono", i.Telefono);
+                    command.Parameters.AddWithValue("@Email", i.Email);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     connection.Close();
@@ -43,7 +43,7 @@ namespace inmobiliaria.Models
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"UPDATE Inquilinos SET {nameof(Inquilino.Estado)} = 0 WHERE Id_inquilino = @Id";
+                string query = $@"UPDATE Inquilinos SET {nameof(Inquilino.Estado)} = 0 WHERE IdInquilino = @Id";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -103,7 +103,7 @@ namespace inmobiliaria.Models
                     {
                         res.Add(new Inquilino
                         {
-                            Id = reader.GetInt32("Id_inquilino"),
+                            Id = reader.GetInt32("IdInquilino"),
                             Nombre = reader.GetString(nameof(Inquilino.Nombre)),
                             Apellido = reader.GetString(nameof(Inquilino.Apellido)),
                             Dni = reader.GetString(nameof(Inquilino.Dni)),
@@ -122,7 +122,7 @@ namespace inmobiliaria.Models
             Inquilino res = null;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Inquilinos WHERE Id_inquilino = @Id AND Estado = true";
+                string query = $@"SELECT * FROM Inquilinos WHERE IdInquilino = @Id AND Estado = true";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -135,7 +135,7 @@ namespace inmobiliaria.Models
                     {
                         res = new Inquilino
                         {
-                            Id = reader.GetInt32("Id_inquilino"),
+                            Id = reader.GetInt32("IdInquilino"),
                             Nombre = reader.GetString(nameof(Inquilino.Nombre)),
                             Apellido = reader.GetString(nameof(Inquilino.Apellido)),
                             Dni = reader.GetString(nameof(Inquilino.Dni)),
