@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Components.Web
+@model inmobiliaria.Models.Propietario
+@{
+    ViewData["Title"] = Model == null ? "Registrar Propietario" : "Editar Propietario";
+}
+<form asp-action="Guardar" method="POST">
+    <div>
+        <label asp-for="Nombre"></label>
+        <input  asp-for="Nombre">
+    </div>
+    </div>
+        <label asp-for="Apellido"></label>
+        <input  asp-for="Apellido">
+    </div>
+        </div>
+        <label asp-for="Dni"></label>
+        <input  asp-for="Dni">
+    </div>
+        </div>
+        <label asp-for="Telefono"></label>
+        <input  asp-for="Telefono">
+    </div>
+        </div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email">
+    </div>
+        </div>
+        <label asp-for="Direccion"></label>
+        <input asp-for="Direccion">
+    </div>
+    <input type="hidden" asp-for="Id" >
+
+    <button type="submit">Guardar</button>
+
+</form>
