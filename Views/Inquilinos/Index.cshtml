@@ -43,10 +43,10 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
-                <div class="class="btn-group" role="group"">
+                <div class="btn-group" role="group">
                     <td>
                         <a class="btn btn-warning" asp-controller="Inquilinos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
-                        <a class="btn btn-danger" asp-area="" asp-controller="Inquilinos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
+                        <a class="btn btn-danger" asp-controller="Inquilinos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
                     </td>
                </div>
             </tr>

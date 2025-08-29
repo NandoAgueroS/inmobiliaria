@@ -68,8 +68,7 @@ namespace inmobiliaria.Models
                 {nameof(Inquilino.Dni)} = @Dni,
                 {nameof(Inquilino.Telefono)} = @Telefono,
                 {nameof(Inquilino.Email)} = @Email
-                WHERE Id_inquilino = @Id;
-                ";
+                WHERE IdInquilino = @Id;";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
