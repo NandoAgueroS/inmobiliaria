@@ -1,15 +1,15 @@
-namespace inmobiliaria.Models
+namespace inmobiliaria.Repositories
 {
     public class RepositorioBase
     {
 
-        protected readonly IConfiguration configuration;
+        protected readonly IConfiguration _configuration;
 
         protected readonly string connectionString;
 
         protected RepositorioBase(IConfiguration configuration)
         {
-            this.configuration = configuration;
+            _configuration = configuration;
             connectionString = configuration["ConnectionStrings:MySql"];
         }
    } 

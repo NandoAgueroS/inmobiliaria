@@ -4,7 +4,7 @@ namespace inmobiliaria.Repositories
     {
      int Alta(T m);
      int Baja(int id);
-     int Modificacion(int id);
+     int Modificacion(T m);
      IList<T> ListarTodos();
      T BuscarPorId(int id);
      }

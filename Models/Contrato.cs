@@ -1,0 +1,35 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace inmobiliaria.Models
+{
+    public class Contrato
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "El inquilino es obligatorio")]
+        public int IdInquilino { get; set; }
+
+        [Required(ErrorMessage = "El inmueble es obligatorio")]
+        public int IdInmueble { get; set; }
+
+        public Inquilino Inquilino { get; set; }
+
+        public Inmueble Inmueble { get; set; }
+        
+        // [DisplayFormat(DataFormatString = "{0:0.##}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = true)]
+        [Required(ErrorMessage = "El monto es obligatorio")]
+        public decimal Monto { get; set; }
+
+        [DataType(DataType.Date)]
+        [Required(ErrorMessage = "La fecha de inicio es obligatoria")]
+        public DateOnly FechaDesde { get; set; }
+
+
+        [DataType(DataType.Date)]
+        [Required(ErrorMessage = "La fecha de fin es obligatoria")]
+        public DateOnly FechaHasta { get; set; }
+
+        public bool Estado { get; set; }
+    }
+}

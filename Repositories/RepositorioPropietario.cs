@@ -1,7 +1,8 @@
 
+using inmobiliaria.Models;
 using MySql.Data.MySqlClient;
 
-namespace inmobiliaria.Models
+namespace inmobiliaria.Repositories
 {
     public class RepositorioPropietario : RepositorioBase
     {

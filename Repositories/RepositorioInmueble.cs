@@ -4,7 +4,7 @@ namespace inmobiliaria.Repositories
 {
     public class RepositorioInmueble : RepositorioBase, IRepositorioInmueble
     {
-        protected RepositorioInmueble(IConfiguration configuration) : base(configuration)
+        public RepositorioInmueble(IConfiguration configuration) : base(configuration)
         {
 
         }
@@ -31,7 +31,7 @@ namespace inmobiliaria.Repositories
             return null;
         }
 
-        public int Modificacion(int id)
+        public int Modificacion(Inmueble m)
         {
             return 0;
         }

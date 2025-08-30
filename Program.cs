@@ -1,7 +1,14 @@
+using System.Globalization;
+using inmobiliaria.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
+builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
+builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
 
 var app = builder.Build();
 

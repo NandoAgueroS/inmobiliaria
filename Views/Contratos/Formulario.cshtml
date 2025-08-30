@@ -1,0 +1,42 @@
+@model inmobiliaria.Models.Contrato
+@{
+    ViewData["Title"] = Model == null ? "Registrar inquilino" : "Editar inquilino";
+}
+<form asp-action="Guardar" method="POST">
+
+    <div class="form-group">
+    <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+        <div>
+        <label asp-for="IdInquilino"></label>
+        <input class="form-control" asp-for="IdInquilino">
+        <span asp-validation-for="IdInquilino" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="IdInmueble"></label>
+        <input class="form-control" asp-for="IdInmueble">
+        <span asp-validation-for="IdInmueble" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="Monto"></label>
+        <input class="form-control" asp-for="Monto" type="number" step="0.01">
+        <span asp-validation-for="Monto" class="text-danger" ></span>
+    </div>
+    <div>
+        <label asp-for="FechaDesde"></label>
+        <input class="form-control" asp-for="FechaDesde">
+        <span asp-validation-for="FechaDesde" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="FechaHasta"></label>
+        <input class="form-control" asp-for="FechaHasta">
+        <span asp-validation-for="FechaHasta" class="text-danger"></span>
+    </div>
+    <div>
+        <input type="hidden" asp-for="Id">
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

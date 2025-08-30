@@ -2,7 +2,7 @@ using inmobiliaria.Models;
 
 namespace inmobiliaria.Repositories
 {
-    public interface IRepositorioInquilo : IRepositorio<Inquilino>
+    public interface IRepositorioInquilino : IRepositorio<Inquilino>
     {
     
     }

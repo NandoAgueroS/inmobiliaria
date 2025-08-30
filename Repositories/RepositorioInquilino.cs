@@ -1,16 +1,17 @@
 
+using inmobiliaria.Models;
 using MySql.Data.MySqlClient;
 
-namespace inmobiliaria.Models
+namespace inmobiliaria.Repositories
 {
 
-    public class RepositorioInquilino : RepositorioBase
+    public class RepositorioInquilino : RepositorioBase, IRepositorioInquilino
     {
         public RepositorioInquilino(IConfiguration configuration) : base(configuration)
         {
         }
 
-        public int Alta(Inquilino i)
+        public int Alta(Inquilino m)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -25,11 +26,11 @@ namespace inmobiliaria.Models
                 SELECT LAST_INSERT_ID();";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Nombre", i.Nombre);
-                    command.Parameters.AddWithValue("@Apellido", i.Apellido);
-                    command.Parameters.AddWithValue("@Dni", i.Dni);
-                    command.Parameters.AddWithValue("@Telefono", i.Telefono);
-                    command.Parameters.AddWithValue("@Email", i.Email);
+                    command.Parameters.AddWithValue("@Nombre", m.Nombre);
+                    command.Parameters.AddWithValue("@Apellido", m.Apellido);
+                    command.Parameters.AddWithValue("@Dni", m.Dni);
+                    command.Parameters.AddWithValue("@Telefono", m.Telefono);
+                    command.Parameters.AddWithValue("@Email", m.Email);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     connection.Close();
@@ -56,7 +57,7 @@ namespace inmobiliaria.Models
             return res;
         }
 
-        public int Modificacion(Inquilino i)
+        public int Modificacion(Inquilino m)
         {
 
             int res = -1;
@@ -72,12 +73,12 @@ namespace inmobiliaria.Models
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Nombre", i.Nombre);
-                    command.Parameters.AddWithValue("@Apellido", i.Apellido);
-                    command.Parameters.AddWithValue("@Dni", i.Dni);
-                    command.Parameters.AddWithValue("@Telefono", i.Telefono);
-                    command.Parameters.AddWithValue("@Email", i.Email);
-                    command.Parameters.AddWithValue("@Id", i.Id);
+                    command.Parameters.AddWithValue("@Nombre", m.Nombre);
+                    command.Parameters.AddWithValue("@Apellido", m.Apellido);
+                    command.Parameters.AddWithValue("@Dni", m.Dni);
+                    command.Parameters.AddWithValue("@Telefono", m.Telefono);
+                    command.Parameters.AddWithValue("@Email", m.Email);
+                    command.Parameters.AddWithValue("@Id", m.Id);
                     connection.Open();
                     res = command.ExecuteNonQuery();
                     connection.Close();

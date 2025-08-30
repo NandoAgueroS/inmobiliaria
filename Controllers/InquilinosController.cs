@@ -1,15 +1,16 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using inmobiliaria.Models;
+using inmobiliaria.Repositories;
 
 namespace inmobiliaria.Controllers;
 
 public class InquilinosController : Controller
 {
-    private RepositorioInquilino repositorioInquilino;
-    public InquilinosController(IConfiguration config)
+    private readonly IRepositorioInquilino repositorioInquilino;
+    public InquilinosController(IRepositorioInquilino repositorioInquilino)
     {
-        this.repositorioInquilino = new RepositorioInquilino(config);
+        this.repositorioInquilino = repositorioInquilino;
     }
     
     public IActionResult Index()

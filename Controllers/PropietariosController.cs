@@ -1,5 +1,6 @@
 using System.Configuration;
 using inmobiliaria.Models;
+using inmobiliaria.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inmobiliaria.Controllers;
@@ -10,7 +11,7 @@ public class PropietariosController : Controller
 
     public PropietariosController(IConfiguration config)
     {
-        this.repositorioPropietario = new RepositorioPropietario(config);
+        // this.repositorioPropietario = new RepositorioPropietario(config);
 
     }
 
