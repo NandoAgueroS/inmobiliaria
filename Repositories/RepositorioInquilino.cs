@@ -87,8 +87,8 @@ namespace inmobiliaria.Repositories
             return res;
         }
 
-    
-    public IList<Inquilino> ListarTodos()
+
+        public IList<Inquilino> ListarTodos()
         {
             IList<Inquilino> res = new List<Inquilino>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -117,7 +117,8 @@ namespace inmobiliaria.Repositories
             return res;
         }
 
-        public Inquilino BuscarPorId(int id) {
+        public Inquilino BuscarPorId(int id)
+        {
 
             Inquilino res = null;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -142,6 +143,36 @@ namespace inmobiliaria.Repositories
                             Email = reader.GetString(nameof(Inquilino.Email)),
                             Telefono = reader.GetString(nameof(Inquilino.Telefono))
                         };
+                    }
+                }
+            }
+            return res;
+        }
+
+        public IList<Inquilino> BuscarPorNombre(string nombre)
+        {
+            IList<Inquilino> res = new List<Inquilino>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM Inquilinos 
+                WHERE {nameof(Inquilino.Estado)}= true AND Nombre LIKE @nombre;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@nombre", $"%{nombre}%");
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Inquilino
+                        {
+                            Id = reader.GetInt32("IdInquilino"),
+                            Nombre = reader.GetString(nameof(Inquilino.Nombre)),
+                            Apellido = reader.GetString(nameof(Inquilino.Apellido)),
+                            Dni = reader.GetString(nameof(Inquilino.Dni)),
+                            Email = reader.GetString(nameof(Inquilino.Email)),
+                            Telefono = reader.GetString(nameof(Inquilino.Telefono)),
+                        });
                     }
                 }
             }

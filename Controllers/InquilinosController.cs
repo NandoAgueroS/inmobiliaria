@@ -53,6 +53,12 @@ public class InquilinosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    public IActionResult Buscar(string nombre)
+    {
+        IList<Inquilino> inquilinos = repositorioInquilino.BuscarPorNombre(nombre);
+        return Json(inquilinos);
+    }
+
     public IActionResult Privacy()
     {
         return View();
