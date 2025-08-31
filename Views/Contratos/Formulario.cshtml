@@ -11,7 +11,7 @@
         <select name="IdInquilino" id="IdInquilino" style="width: 300px;">
         @if (Model != null && Model.Inquilino != null)
         {
-            <option selected value="@Model.Id">@Model.Inquilino.Nombre @Model.Inquilino.Apellido</option>
+            <option selected value="@Model.Inquilino.Id">@Model.Inquilino.Nombre @Model.Inquilino.Apellido</option>
         }
         </select>
         <input type="hidden" asp-for="IdInquilino">

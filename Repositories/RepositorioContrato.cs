@@ -40,6 +40,7 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@FechaHasta", m.FechaHasta.ToString("yyyy-MM-dd"));
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
+                    m.Id = res;
                     connection.Close();
                 }
             }
@@ -174,6 +175,23 @@ namespace inmobiliaria.Repositories
                             }
                         };
                     }
+                }
+            }
+            return res;
+        }
+        public int Reactivar(int id)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE Contratos SET {nameof(Contrato.Estado)} = true WHERE IdContrato = @Id";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                    connection.Close();
                 }
             }
             return res;

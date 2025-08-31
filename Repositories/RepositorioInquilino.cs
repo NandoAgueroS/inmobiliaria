@@ -178,5 +178,22 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
+        public int Reactivar(int id)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE Inquilinos SET {nameof(Inquilino.Estado)} = true WHERE IdInquilino = @Id";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            return res;
+        }
     }
 }

@@ -15,6 +15,11 @@ public class InquilinosController : Controller
     
     public IActionResult Index()
     {
+        ViewBag.ControllerName = "Inquilinos";
+        if (TempData.ContainsKey("Accion"))
+            ViewBag.Accion = TempData["Accion"];
+        if (TempData.ContainsKey("Id"))
+            ViewBag.Id = TempData["Id"];
         IList<Inquilino> inquilinos = repositorioInquilino.ListarTodos();
 
         return View(inquilinos);
@@ -38,10 +43,12 @@ public class InquilinosController : Controller
         if (inquilino.Id == 0)
         {
             repositorioInquilino.Alta(inquilino);
+            TempData["Accion"] = Accion.Alta.value;
         }
         else
         {
             repositorioInquilino.Modificacion(inquilino);
+            TempData["Accion"] = Accion.Modificacion.value;
         }
 
         return RedirectToAction(nameof(Index));
@@ -50,9 +57,16 @@ public class InquilinosController : Controller
     public IActionResult Eliminar(int id)
     {
         repositorioInquilino.Baja(id);
+        TempData["Accion"] = Accion.Baja.value;
+        TempData["Id"] = id;
         return RedirectToAction(nameof(Index));
     }
 
+    public IActionResult Reactivar(int id)
+    {
+        repositorioInquilino.Reactivar(id);
+        return RedirectToAction(nameof(Index));
+    }
     public IActionResult Buscar(string nombre)
     {
         IList<Inquilino> inquilinos = repositorioInquilino.BuscarPorNombre(nombre);

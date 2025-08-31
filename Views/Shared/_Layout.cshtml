@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/inmobiliaria.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 <body>
     <header>
@@ -54,6 +55,37 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+        @if (ViewBag.Accion != null && ViewBag.Id != null && ViewBag.Accion == "Eliminado")
+        {
+            <text>
+                toastr.success('@ViewBag.Accion correctamente <br> <a class="text-white" id="deshacer-btn" href="/@ViewBag.ControllerName/Reactivar/@ViewBag.Id">Deshacer</a>');
+            </text>
+        }else if (ViewBag.Accion != null)
+        {
+            <text>
+                toastr.success('@ViewBag.Accion correctamente');
+            </text>
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

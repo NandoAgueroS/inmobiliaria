@@ -17,7 +17,7 @@ namespace inmobiliaria.Models
         public Inmueble Inmueble { get; set; }
         
         // [DisplayFormat(DataFormatString = "{0:0.##}", ApplyFormatInEditMode = true)]
-        [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = true)]
+        // [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = true)]
         [Required(ErrorMessage = "El monto es obligatorio")]
         public decimal Monto { get; set; }
 
