@@ -4,7 +4,7 @@ using MySql.Data.MySqlClient;
 
 namespace inmobiliaria.Repositories
 {
-    public class RepositorioPropietario : RepositorioBase
+    public class RepositorioPropietario : RepositorioBase, IRepositorioPropietario
     {
         public RepositorioPropietario(IConfiguration configuration) : base(configuration)
         {
@@ -59,7 +59,7 @@ namespace inmobiliaria.Repositories
             return res;
 
         }
-        public int Modificar(Propietario p)
+        public int Modificacion(Propietario p)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -71,7 +71,7 @@ namespace inmobiliaria.Repositories
              {nameof(Propietario.Telefono)}=@Telefono,
              {nameof(Propietario.Email)}=@Email,
              {nameof(Propietario.Direccion)}=@Direccion
-            WHERE IdPropietario = @Id;"; 
+            WHERE IdPropietario = @Id;";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Nombre", p.Nombre);
@@ -118,8 +118,9 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
-        
-        public Propietario BuscarPorId(int id) {
+
+        public Propietario BuscarPorId(int id)
+        {
 
             Propietario res = null;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -143,14 +144,60 @@ namespace inmobiliaria.Repositories
                             Dni = reader.GetString(nameof(Propietario.Dni)),
                             Email = reader.GetString(nameof(Propietario.Email)),
                             Telefono = reader.GetString(nameof(Propietario.Telefono)),
-                            Direccion= reader.GetString(nameof(Propietario.Direccion))
+                            Direccion = reader.GetString(nameof(Propietario.Direccion))
                         };
                     }
                 }
             }
             return res;
         }
-        
+        public IList<Propietario> BuscarPorNombre(string nombre)
+        {
+            IList<Propietario> res = new List<Propietario>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM Propietarios 
+                WHERE {nameof(Propietario.Estado)}= true AND Nombre LIKE @nombre;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@nombre", $"%{nombre}%");
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Propietario
+                        {
+                            Id = reader.GetInt32("IdPropietario"),
+                            Nombre = reader.GetString(nameof(Propietario.Nombre)),
+                            Apellido = reader.GetString(nameof(Propietario.Apellido)),
+                            Dni = reader.GetString(nameof(Propietario.Dni)),
+                            Email = reader.GetString(nameof(Propietario.Email)),
+                            Telefono = reader.GetString(nameof(Propietario.Telefono)),
+                            Direccion = reader.GetString(nameof(Propietario.Direccion)),
+                        });
+                    }
+                }
+            }
+            return res;
+        }
+         public int Reactivar(int id)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE Propietarios SET {nameof(Propietario.Estado)} = true WHERE IdPropietario = @Id";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            return res;
+        }
 
     }
 } 

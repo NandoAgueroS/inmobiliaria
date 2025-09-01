@@ -1,4 +1,5 @@
 using inmobiliaria.Models;
+using MySql.Data.MySqlClient;
 
 namespace inmobiliaria.Repositories
 {
@@ -11,30 +12,191 @@ namespace inmobiliaria.Repositories
 
         public int Alta(Inmueble m)
         {
-            return 0;
-           
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"INSERT INTO Inmuebles (
+            {nameof(Inmueble.IdPropietario)},
+            {nameof(Inmueble.IdTipo)},
+            {nameof(Inmueble.Uso)},
+            {nameof(Inmueble.Ambientes)},
+            {nameof(Inmueble.Direccion)},
+            {nameof(Inmueble.Precio)},
+            {nameof(Inmueble.Coordenadas)},
+            {nameof(Inmueble.Estado)}) VALUES (
+            @IdPropietario, @IdTipo, @Uso, @Ambientes, @Direccion, @Precio, @Coordenadas, true);
+            SELECT LAST_INSERT_ID();";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdPropietario", m.IdPropietario);
+                    command.Parameters.AddWithValue("@IdTipo", m.IdTipo);
+                    command.Parameters.AddWithValue("@Uso", m.Uso);
+                    command.Parameters.AddWithValue("@Ambientes", m.Ambientes);
+                    command.Parameters.AddWithValue("@Direccion", m.Direccion);
+                    command.Parameters.AddWithValue("@Precio", m.Precio);
+                    command.Parameters.AddWithValue("@Coordenadas", m.Coordenadas);
+                    connection.Open();
+                    res = Convert.ToInt32(command.ExecuteScalar());
+                    m.Id = res;
+                    connection.Close();
+                }
+            }
+            return res;
         }
 
         public int Baja(int id)
         {
-            return 0;
-            
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE Inmuebles SET {nameof(Inmueble.Estado)} = false WHERE IdInmueble = @Id";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            return res;
         }
 
         public Inmueble BuscarPorId(int id)
         {
-            return null;
+            Inmueble res = null;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM Inmuebles i JOIN Propietarios p ON i.IdPropietario = p.IdPropietario JOIN Tipos t ON i.IdTipo = t.IdTipo WHERE i.IdInmueble = @Id AND i.Estado = true";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    connection.Open();
+
+                    var reader = command.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        res = new Inmueble
+                        {
+                            Id = reader.GetInt32("IdInmueble"),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            Uso = reader.GetString(nameof(Inmueble.Uso)),
+                            Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                            Estado = reader.GetBoolean(nameof(Contrato.Estado)),
+                            Propietario = new Propietario
+                            {
+                                Id = reader.GetInt32("IdPropietario"),
+                                Nombre = reader.GetString(nameof(Propietario.Nombre)),
+                                Apellido = reader.GetString(nameof(Propietario.Apellido)),
+                                Dni = reader.GetString(nameof(Propietario.Dni)),
+                                Telefono = reader.GetString(nameof(Propietario.Telefono)),
+                                Direccion = reader.GetString(nameof(Propietario.Direccion))
+                            },
+
+                            Tipo = new Tipo
+                            {
+                                Id = reader.GetInt32("IdTipo"),
+                                Descripcion = reader.GetString(nameof(Tipo.Descripcion))
+                            }
+
+                        };
+                    }
+                }
+            }
+            return res;
         }
 
         public IList<Inmueble> ListarTodos()
         {
-            return null;
+            IList<Inmueble> res = new List<Inmueble>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM Inmuebles WHERE Estado = true;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Inmueble
+                        {
+                            Id = reader.GetInt32("IdInmueble"),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            Uso = reader.GetString(nameof(Inmueble.Uso)),
+                            Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+
+
+                            Estado = reader.GetBoolean(nameof(Inmueble.Estado))
+                        });
+                    }
+                }
+            }
+            return res;
         }
 
         public int Modificacion(Inmueble m)
         {
-            return 0;
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE Inmuebles SET
+                {nameof(Inmueble.IdPropietario)} = @IdPropietario,
+                {nameof(Inmueble.IdTipo)} = @IdTipo,
+                {nameof(Inmueble.Uso)} = @uso,
+                {nameof(Inmueble.Ambientes)} = @Ambientes,
+                {nameof(Inmueble.Direccion)} = @Direccion,
+                {nameof(Inmueble.Precio)} = @Precio,
+                {nameof(Inmueble.Coordenadas)} = @Coordenadas
+                WHERE IdInmueble = @Id;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", m.Id);
+                    command.Parameters.AddWithValue("@IdPropietario", m.IdPropietario);
+                    command.Parameters.AddWithValue("@IdTipo", m.IdTipo);
+                    command.Parameters.AddWithValue("@Uso", m.Uso);
+                    command.Parameters.AddWithValue("@Ambientes", m.Ambientes);
+                    command.Parameters.AddWithValue("@Direccion", m.Direccion);
+                    command.Parameters.AddWithValue("@Precio", m.Precio);
+                    command.Parameters.AddWithValue("@Coordenadas", m.Coordenadas);
+
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            return res;
         }
+
+        public int Reactivar(int id)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE Inmuebles SET {nameof(Inmueble.Estado)} = true WHERE IdInmueble = @Id";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+        
     }
 
 
