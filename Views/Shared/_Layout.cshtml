@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Collections
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -83,6 +84,12 @@
         {
             <text>
                 toastr.success('@ViewBag.Accion correctamente');
+            </text>
+        }
+        @if (ViewBag.Error != null)
+        {
+            <text>
+                toastr.error('@ViewBag.Error');
             </text>
         }
     </script>

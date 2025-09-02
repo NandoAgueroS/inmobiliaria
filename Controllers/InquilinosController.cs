@@ -2,15 +2,20 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using inmobiliaria.Models;
 using inmobiliaria.Repositories;
+using MySql.Data.MySqlClient;
+using System.Collections;
 
 namespace inmobiliaria.Controllers;
 
 public class InquilinosController : Controller
 {
     private readonly IRepositorioInquilino repositorioInquilino;
-    public InquilinosController(IRepositorioInquilino repositorioInquilino)
+    private readonly IRepositorioContrato repositorioContrato;
+
+    public InquilinosController(IRepositorioInquilino repositorioInquilino, IRepositorioContrato repositorioContrato)
     {
         this.repositorioInquilino = repositorioInquilino;
+        this.repositorioContrato= repositorioContrato;
     }
     
     public IActionResult Index()
@@ -20,46 +25,120 @@ public class InquilinosController : Controller
             ViewBag.Accion = TempData["Accion"];
         if (TempData.ContainsKey("Id"))
             ViewBag.Id = TempData["Id"];
-        IList<Inquilino> inquilinos = repositorioInquilino.ListarTodos();
+        if (TempData.ContainsKey("Error"))
+            ViewBag.Error = TempData["Error"];
+        try
+        {
+            IList<Inquilino> inquilinos = repositorioInquilino.ListarTodos();
+            return View(inquilinos);
+        }
+        catch (MySqlException ex)
+        {
+            ViewBag.Error = "Ocurrió un error al recuperar los inquilinos";
 
-        return View(inquilinos);
+            Console.WriteLine(ex.ToString());
+
+            return View(new List<Inquilino>());
+        }
+        catch (Exception ex)
+        {
+            ViewBag.Error = "Ocurrió un error inesperado";
+            Console.WriteLine(ex.ToString());
+            return View(new List<Inquilino>());
+        }
+
     }
 
     public IActionResult Formulario(int id)
     {
-
         if (id == 0)
         {
             return View();
-        } else {
-            Inquilino inquilino = repositorioInquilino.BuscarPorId(id);
-            return View(inquilino);
-        }
-    }
-    
-    [HttpPost]
-    public IActionResult Guardar(Inquilino inquilino)
-    {
-        if (inquilino.Id == 0)
-        {
-            repositorioInquilino.Alta(inquilino);
-            TempData["Accion"] = Accion.Alta.value;
         }
         else
         {
-            repositorioInquilino.Modificacion(inquilino);
-            TempData["Accion"] = Accion.Modificacion.value;
+            try
+            {
+                Inquilino inquilino = repositorioInquilino.BuscarPorId(id);
+                return View(inquilino);
+            }
+            catch (MySqlException ex)
+            {
+                ViewBag.Error = "Ocurrió un error al recuperar el inquilino";
+                Console.WriteLine(ex.ToString());
+                return View();
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error inesperado";
+                Console.WriteLine(ex.ToString());
+                return View();
+            }
         }
+    }
 
-        return RedirectToAction(nameof(Index));
+    [HttpPost]
+    public IActionResult Guardar(Inquilino inquilino)
+    {
+        try
+        {
+
+            if (inquilino.Id == 0)
+            {
+                repositorioInquilino.Alta(inquilino);
+                TempData["Accion"] = Accion.Alta.value;
+            }
+            else
+            {
+                repositorioInquilino.Modificacion(inquilino);
+                TempData["Accion"] = Accion.Modificacion.value;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (MySqlException ex)
+        {
+            ViewBag.Error = "Ocurrió un error al guardar el inquilino";
+            Console.WriteLine(ex.ToString());
+            return View(nameof(Formulario), inquilino);
+        }
+        catch (Exception ex)
+        {
+            ViewBag.Error = "Ocurrió un error inesperado";
+            Console.WriteLine(ex.ToString());
+            return View(nameof(Formulario), inquilino);
+        }
     }
 
     public IActionResult Eliminar(int id)
     {
-        repositorioInquilino.Baja(id);
-        TempData["Accion"] = Accion.Baja.value;
-        TempData["Id"] = id;
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            Contrato contrato = repositorioContrato.BuscarActualPorInquilino(id);
+            if (contrato != null)
+            {
+                TempData["Error"] = "Fallo al eliminar: el inquilino tiene un contrato activo";
+                return RedirectToAction(nameof(Index));
+            }
+
+            repositorioInquilino.Baja(id);
+            TempData["Accion"] = Accion.Baja.value;
+            TempData["Id"] = id;
+
+
+            return RedirectToAction(nameof(Index));
+        }        catch (MySqlException ex)
+        {
+            TempData["Error"] = "Ocurrió un error al eliminar el inquilino";
+            Console.WriteLine(ex.ToString());
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Ocurrió un error inesperado";
+            Console.WriteLine(ex.ToString());
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     public IActionResult Reactivar(int id)
@@ -67,20 +146,10 @@ public class InquilinosController : Controller
         repositorioInquilino.Reactivar(id);
         return RedirectToAction(nameof(Index));
     }
+
     public IActionResult Buscar(string nombre)
     {
         IList<Inquilino> inquilinos = repositorioInquilino.BuscarPorNombre(nombre);
         return Json(inquilinos);
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

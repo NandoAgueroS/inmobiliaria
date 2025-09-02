@@ -47,9 +47,28 @@
                     <td>
                         <a class="btn btn-warning" asp-controller="Inquilinos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
                         <a class="btn btn-danger" asp-controller="Inquilinos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
+                        @* <button class="btn btn-danger" type="button" onclick="eliminar(@item.Id)">Eliminar</button> *@
                     </td>
                </div>
             </tr>
         }
     </tbody>
 </table>
+@section Scripts {
+    <script type="text/javascript">
+
+    function eliminar(id){
+        fetch('/Inquilinos/Eliminar/' + id)
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else if (response.status === 400) {
+                return response.text().then(mensaje => {
+                    if (mensaje === "Contrato Activo"){
+                        alert("No se puede eliminar el inquilino porque tiene un contrato activo.");
+                    }
+                })
+            }
+    })}
+    </script>
+}
