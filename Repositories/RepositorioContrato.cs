@@ -171,11 +171,13 @@ namespace inmobiliaria.Repositories
                                 Ambientes = reader.GetInt32("Ambientes"),
                                 Precio = reader.GetDecimal("Precio"),
                                 Coordenadas = reader.GetString("Coordenadas"),
-                                Estado = reader.GetBoolean("Estado")
+                                Estado = reader.GetBoolean("Estado"),
+                                Direccion = reader.GetString("Direccion")
                             }
                         };
                     }
                 }
+                
             }
             return res;
         }

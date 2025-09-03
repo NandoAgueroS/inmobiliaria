@@ -1,3 +1,4 @@
+using System.Collections;
 using inmobiliaria.Models;
 using MySql.Data.MySqlClient;
 
@@ -107,7 +108,9 @@ namespace inmobiliaria.Repositories
 
                         };
                     }
+                    connection.Close();
                 }
+                
             }
             return res;
         }
@@ -140,6 +143,7 @@ namespace inmobiliaria.Repositories
                             Estado = reader.GetBoolean(nameof(Inmueble.Estado))
                         });
                     }
+                    connection.Close();
                 }
             }
             return res;
@@ -178,6 +182,78 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
+
+        public IList<Inmueble> BuscarPorPropietario(int id)
+        {
+           IList<Inmueble> res = new List<Inmueble>();
+ 
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+
+                
+                string query = $@"SELECT * FROM Inmuebles WHERE IdPropietario = @Id;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                     command.Parameters.AddWithValue("@Id", id);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Inmueble
+                        {
+                            Id = reader.GetInt32("IdInmueble"),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            Uso = reader.GetString(nameof(Inmueble.Uso)),
+                            Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                            Estado = reader.GetBoolean(nameof(Inmueble.Estado))
+                        });
+                    }
+                    connection.Close();
+                }
+
+            }
+            return res;
+        }
+        public IList<Inmueble> BuscarPorDireccion(string direccion)
+        {
+            IList<Inmueble> res = new List<Inmueble>();
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM Inmuebles WHERE direccion LIKE @Direccion;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                     command.Parameters.AddWithValue("@Direccion", $"%{direccion}%");
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Inmueble
+                        {
+                            Id = reader.GetInt32("IdInmueble"),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            Uso = reader.GetString(nameof(Inmueble.Uso)),
+                            Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                            Estado = reader.GetBoolean(nameof(Inmueble.Estado))
+                        });
+                
+                    }
+                    connection.Close();
+                }
+                
+            }
+            return res;
+        }
+
+
 
         public int Reactivar(int id)
         {

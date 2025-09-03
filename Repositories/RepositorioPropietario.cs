@@ -34,6 +34,7 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@Direccion", p.Direccion);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
+                    p.Id=res;
                     connection.Close();
                 }
                 return res;

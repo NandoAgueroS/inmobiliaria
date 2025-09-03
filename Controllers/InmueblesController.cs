@@ -144,14 +144,14 @@ namespace inmobiliaria.Controllers
 
            
         }
-    
+
         public IActionResult Reactivar(int id)
         {
             try
             {
                 repositorioInmueble.Reactivar(id);
                 return RedirectToAction(nameof(Index));
-            
+
             }
             catch (MySqlException ex)
             {
@@ -167,8 +167,32 @@ namespace inmobiliaria.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+            
 
             
         }
+        public IActionResult Buscar(string direccion)
+        {
+            try
+            {
+                IList<Inmueble> inmuebles = repositorioInmueble.BuscarPorDireccion(direccion);
+                return Json(inmuebles);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500,"Error en la base de datos");
+            }
+            catch (Exception e)
+            {
+             Console.WriteLine(e.ToString());
+
+                return StatusCode(500, "Error general");
+            }
+            
+        
+    }
+
     }
 }

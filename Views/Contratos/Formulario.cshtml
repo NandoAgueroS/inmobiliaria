@@ -19,7 +19,13 @@
     </div>
     <div>
         <label asp-for="IdInmueble"></label>
-        <input class="form-control" asp-for="IdInmueble">
+        <select name="IdInmueble" id="IdInmueble" style="width: 300px;">
+            @if (Model != null && Model.Inmueble != null)
+            {
+                <option selected value="@Model.Inmueble.Id">@Model.Inmueble.Direccion</option>
+            }
+        </select>
+        <input type="hidden" asp-for="IdInmueble">
         <span asp-validation-for="IdInmueble" class="text-danger"></span>
     </div>
     <div>
@@ -64,6 +70,31 @@
                     return {
                             results: data.map(element => {
                             return { id: element.id, text: element.nombre + ' ' + element.apellido}
+                        })
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        }
+    )
+
+    $('#IdInmueble').select2(
+        {
+            placeholder: "Seleccione un inmueble",
+            ajax: {
+                url: '/Inmuebles/Buscar',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        direccion: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                            results: data.map(element => {
+                            return { id: element.id, text: element.direccion}
                         })
                     };
                 },
