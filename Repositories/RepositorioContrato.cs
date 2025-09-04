@@ -101,7 +101,7 @@ namespace inmobiliaria.Repositories
             IList<Contrato> res = new List<Contrato>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Contratos WHERE Estado = true;";
+                string query = $@"SELECT * FROM Contratos c JOIN Inmuebles im ON c.IdInmueble = im.IdInmueble JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino  WHERE c.Estado = true;";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -115,9 +115,29 @@ namespace inmobiliaria.Repositories
                             IdInquilino = reader.GetInt32(nameof(Contrato.IdInquilino)),
                             IdInmueble = reader.GetInt32(nameof(Contrato.IdInmueble)),
                             Monto = reader.GetDecimal(nameof(Contrato.Monto)),
-                            FechaDesde = DateOnly.FromDateTime(reader.GetDateTime (nameof(Contrato.FechaDesde))),
+                            FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
                             FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
-                            Estado = reader.GetBoolean(nameof(Contrato.Estado))
+                            Estado = reader.GetBoolean(nameof(Contrato.Estado)),
+                            Inquilino = new Inquilino
+                            {
+                                Id = reader.GetInt32("IdInquilino"),
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido"),
+                                Dni = reader.GetString("Dni"),
+                                Telefono = reader.GetString("Telefono"),
+                                Email = reader.GetString("Email")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Id = reader.GetInt32("IdInmueble"),
+                                IdTipo = reader.GetInt32("IdTipo"),
+                                Uso = reader.GetString("Uso"),
+                                Ambientes = reader.GetInt32("Ambientes"),
+                                Precio = reader.GetDecimal("Precio"),
+                                Coordenadas = reader.GetString("Coordenadas"),
+                                Estado = reader.GetBoolean("Estado"),
+                                Direccion = reader.GetString("Direccion")
+                            }
                         });
                     }
                 }

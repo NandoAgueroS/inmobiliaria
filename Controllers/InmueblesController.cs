@@ -21,6 +21,8 @@ namespace inmobiliaria.Controllers
                     ViewBag.Accion = TempData["Accion"];
                 if (TempData.ContainsKey("Id"))
                     ViewBag.Id = TempData["Id"];
+                if (TempData.ContainsKey("Error"))
+                    ViewBag.Error = TempData["Error"];
                 IList<Inmueble> inmuebles = repositorioInmueble.ListarTodos();
                 return View(inmuebles);
 
@@ -101,17 +103,17 @@ namespace inmobiliaria.Controllers
             }
             catch (MySqlException ex)
             {
-             ViewBag.Error = "Ocurrió un error al recuperar los datos!";
+             ViewBag.Error = "Ocurrió un error al guardar!";
                 Console.WriteLine(ex.ToString());
 
-            return RedirectToAction(nameof(Index));
+            return View(nameof(Formulario), inmueble);
             }
             catch (Exception e)
             {
                ViewBag.Error = "Ocurrió un error inesperado";
                 Console.WriteLine(e.ToString());
 
-                return RedirectToAction(nameof(Index)); 
+                return View(nameof(Formulario), inmueble); 
             }
 
            
