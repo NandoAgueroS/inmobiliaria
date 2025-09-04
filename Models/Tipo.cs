@@ -5,7 +5,7 @@ namespace inmobiliaria.Models
     public class Tipo 
     {
         public int Id {get;set;}
-        [Required]
+        [Required(ErrorMessage="La descripcion es un campo obligatorio")]
         public string Descripcion {get;set;}
     }
 }

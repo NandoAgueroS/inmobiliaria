@@ -6,24 +6,24 @@ namespace inmobiliaria.Models
     {
 
         public int Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Es obligatorio por el tipo")]
         public int IdTipo{ get; set; }
         public Tipo Tipo { get; set; }
-        [Required]
+        [Required(ErrorMessage = "El uso es un campo obligatorio")]
         public string Uso { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Es obligatorio poner la cantidad de ambientes")]
         public int Ambientes { get; set; }
-         [Required]
+         [Required(ErrorMessage = "La direccion es un campo obligatorio")]
         public string Direccion { get; set; }
-        [Required]
+        [Required(ErrorMessage = "El precio es un campo obligatorio")]
         public decimal Precio { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Las coordenadas son obligatorias")]
         public string Coordenadas { get; set; }
-        [Required]
+        [Required(ErrorMessage="Es un campo obligatorio el propietario")]
         public int IdPropietario{ get; set; }
 
         public Propietario Propietario { get; set; }
-        [Required]
+        [Required(ErrorMessage="Es obligatorio poner el estado")]
         public bool Estado { get; set; }
 
         
