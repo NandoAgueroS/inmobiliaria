@@ -6,34 +6,127 @@
 <div class="text-center">
     <h1>Inmuebles</h1>
 </div>
-<div>
-    <a class="btn btn-primary" asp-controller="Inmuebles" asp-action="Formulario">Registrar</a>
+<div class="contenedor-botones-crear">
+  <div>
+      <a class="btn btn-primary" asp-controller="Inmuebles" asp-action="Formulario">Registrar</a>
+  </div>
+  <div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#crearTipoModal">Agregar tipo de inmueble</button>
+  </div>
 </div>
-
     <div class="contenedor-card" >
         @foreach(var item in Model)
         {
-            <div>
-
-          <div class="card" style="width: 18rem;"></div>
+          <div class="card" style="width: 18rem;">
            <img src="~/images/default1.png" class="card-img-top imagen-card" alt="Imagen Inmueble">
           <div class="card-body">
-           <h6>@Html.DisplayNameFor(model => model.Direccion)</h6>
-          <h4 class="card-title">@Html.DisplayFor(modelItem => item.Direccion)</h4>
-          <p>@Html.DisplayNameFor(model => model.Uso)</p>
-          <h5>@Html.DisplayFor(modelItem => item.Uso)</h5>
-          <p>@Html.DisplayNameFor(model => model.Precio)</p>
-          <h4>@Html.DisplayFor(modelItem => item.Precio)</h4>
+            <h6>@Html.DisplayNameFor(model => model.Direccion)</h6>
+            <h4 class="card-title">@Html.DisplayFor(modelItem => item.Direccion)</h4>
+            <p>@Html.DisplayNameFor(model => model.Uso)</p>
+            <h5>@Html.DisplayFor(modelItem => item.Uso)</h5>
+            <p>@Html.DisplayNameFor(model => model.Precio)</p>
+            <h4>@Html.DisplayFor(modelItem => item.Precio)</h4>
            <div class="btn-group" role="group">
                     
                         <a class="btn btn-warning" asp-controller="Inmuebles" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
                         <a class="btn btn-danger" asp-controller="Inmuebles" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
                     
                </div>
-          <a class="btn btn-primary" asp-controller="Inmuebles" asp-action="BuscarPorId" asp-route-id="@item.Id">Detalle</a>
+          @* <a class="btn btn-primary" asp-controller="Inmuebles" asp-action="BuscarPorId" asp-route-id="@item.Id">Detalle</a> *@
+<button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
+  Detalle
+</button>
           </div>
           
             </div>
         }
+
+<div class="modal fade" id="detalle" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="detalleModalLabel">Detalles del inmueble</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="propietario"></p>
+        <p id="direccion"></p>
+        <p id="tipo"></p>
+        <p id="uso"></p>
+        <p id="ambientes"></p>
+        <p id="coordenadas"></p>
+        <p id="precio"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
      
-    </div>        
+</div>
+  <div class="modal" tabindex="-1" id="crearTipoModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Crear nuevo tipo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label for="descripcion" class="form-label">Tipo</label>
+        <input type="text" class="form-control" id="descripcion">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="guardar-tipo" >Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts{
+    <script>
+        function cargarDatos(item){
+
+            const datos = fetch('/Inmuebles/BuscarPorId/' + item)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                $("#propietario").html("<b>Propietario</b>: <br>" + data.propietario.nombre + " " + data.propietario.apellido + " (" + data.propietario.dni + ")");
+                $("#direccion").html("<b>Direccion</b>: <br>" + data.direccion);
+                $("#tipo").html("<b>Tipo</b>: <br> " + data.tipo.descripcion);
+                $("#uso").html("<b>Uso</b>: <br>" + data.uso);
+                $("#ambientes").html("<b>Ambientes</b>: <br>" + data.ambientes);
+                $("#coordenadas").html("<b>Coordenadas</b>: <br>" + data.coordenadas);
+                $("#precio").html("<b>Precio</b>: <br>" + data.precio);
+                $("#detalle").modal('show');
+            })
+            .catch(error => {
+                console.error('Error:', error)
+                toastr.error('No se pudieron cargar los detalles del inmueble');
+                });
+        }
+        $('#guardar-tipo').click(() => {
+            const descripcion = $('#descripcion').val();
+            const tipo= { descripcion: descripcion};
+            fetch('/Inmuebles/AltaTipo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(tipo)
+            })
+            .then(response => {
+                if (response.ok) {
+                    toastr.success('Creado correctamente');
+                    $('#crearTipoModal').modal('hide');
+                } else {
+                    toastr.error('Error al guaradar el tipo de inmueble');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('Error al guardar el tipo de inmueble');
+            });
+        });
+    </script>
+    }

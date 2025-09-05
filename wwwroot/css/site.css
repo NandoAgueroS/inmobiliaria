@@ -50,3 +50,19 @@ display: grid;                                 /* Activamos Grid */
 .contenedor-card p, h6{
   margin-bottom: 0px;
 }
+
+#detalle .modal-body p{
+  margin-top: 10px;
+}
+#deshacer-btn{
+  color: #ffdddd;
+  font-weight: bold;
+}
+.contenedor-botones-crear{
+  display: flex;
+  flex-direction: row; 
+  justify-content: space-between;
+}
+.contenedor-botones-crear div {
+  width: fit-content;
+}

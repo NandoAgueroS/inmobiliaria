@@ -1,5 +1,6 @@
 using inmobiliaria.Models;
 using inmobiliaria.Repositories;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 
@@ -197,6 +198,44 @@ namespace inmobiliaria.Controllers
             
         
     }
+        public IActionResult BuscarPorId(int id)
+        {
+            try
+            {
+                Inmueble inmueble = repositorioInmueble.BuscarPorId(id);
+                return Json(inmueble);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
 
+                return StatusCode(500, "Error en la base de datos");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+
+                return StatusCode(500, "Error general");
+            }
+        }
+        [HttpPost]
+        public IActionResult AltaTipo([FromBody] Tipo tipo)
+        {
+            try
+            {
+                repositorioTipo.Alta(tipo);
+                return Created(); 
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return StatusCode(500, "Error en la base de datos");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return StatusCode(500, "Error general");
+            }
+        }
     }
 }

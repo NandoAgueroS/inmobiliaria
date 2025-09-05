@@ -83,7 +83,7 @@
         @if (ViewBag.Accion != null && ViewBag.Id != null && ViewBag.Accion == "Eliminado")
         {
             <text>
-                toastr.success('@ViewBag.Accion correctamente <br> <a class="text-white" id="deshacer-btn" href="/@ViewBag.ControllerName/Reactivar/@ViewBag.Id">Deshacer</a>');
+                toastr.success('@ViewBag.Accion correctamente <br> <a id="deshacer-btn" href="/@ViewBag.ControllerName/Reactivar/@ViewBag.Id">Deshacer</a>');
             </text>
         }else if (ViewBag.Accion != null)
         {
