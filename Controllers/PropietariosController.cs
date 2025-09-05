@@ -80,8 +80,14 @@ public class PropietariosController : Controller
     [HttpPost]
     public IActionResult Guardar(Propietario propietario)
     {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Error = "Los datos ingresados no son válidos";
+            return View(nameof(Formulario), propietario);
+         }
+               
         try
-            {
+        {
 
             if (propietario.Id == 0)
             {
@@ -96,22 +102,22 @@ public class PropietariosController : Controller
                 TempData["Accion"] = Accion.Modificacion.value;
                 TempData["Id"] = propietario.Id;
             }
-        return RedirectToAction(nameof(Index));
-            }
-            catch (MySqlException ex)
-            {
-             ViewBag.Error = "Ocurrió un error al guardar el propietario!";
-                Console.WriteLine(ex.ToString());
+            return RedirectToAction(nameof(Index));
+        }
+        catch (MySqlException ex)
+        {
+            ViewBag.Error = "Ocurrió un error al guardar el propietario!";
+            Console.WriteLine(ex.ToString());
 
-            return View(nameof(Formulario),propietario);
-            }
-            catch (Exception e)
-            {
-               ViewBag.Error = "Ocurrió un error inesperado al guardar al propietario";
-                Console.WriteLine(e.ToString());
+            return View(nameof(Formulario), propietario);
+        }
+        catch (Exception e)
+        {
+            ViewBag.Error = "Ocurrió un error inesperado al guardar al propietario";
+            Console.WriteLine(e.ToString());
 
-                return View(nameof(Formulario),propietario); 
-            }
+            return View(nameof(Formulario), propietario);
+        }
         
 
 

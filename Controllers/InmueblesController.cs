@@ -56,6 +56,7 @@ namespace inmobiliaria.Controllers
 
                     IList<Tipo> tipos = repositorioTipo.ListarTodos();
                     ViewBag.Tipos = tipos;
+                    
                 if (id == 0)
                 {
                     return View();
@@ -89,34 +90,40 @@ namespace inmobiliaria.Controllers
         [HttpPost]
         public IActionResult Guardar(Inmueble inmueble)
         {
+             if (!ModelState.IsValid)
+            {
+            ViewBag.Error = "Los datos ingresados no son válidos";
+            return View(nameof(Formulario), inmueble);
+            }
+          
             try
             {
-             if (inmueble.Id == 0)
-            {
-                repositorioInmueble.Alta(inmueble);
-                TempData["Accion"] = Accion.Alta.value;
-            }
-            else
-            {
-                repositorioInmueble.Modificacion(inmueble);
-                TempData["Accion"] = Accion.Modificacion.value;
-            }
+                if (inmueble.Id == 0)
+                {
+                    repositorioInmueble.Alta(inmueble);
+                    TempData["Accion"] = Accion.Alta.value;
+                }
+                else
+                {
+                    repositorioInmueble.Modificacion(inmueble);
+                    TempData["Accion"] = Accion.Modificacion.value;
+                }
 
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
             catch (MySqlException ex)
             {
-             ViewBag.Error = "Ocurrió un error al guardar!";
+                ViewBag.Error = "Ocurrió un error al guardar!";
                 Console.WriteLine(ex.ToString());
 
-            return View(nameof(Formulario), inmueble);
+                return View(nameof(Formulario), inmueble);
             }
             catch (Exception e)
             {
-               ViewBag.Error = "Ocurrió un error inesperado";
+                ViewBag.Error = "Ocurrió un error inesperado";
                 Console.WriteLine(e.ToString());
 
-                return View(nameof(Formulario), inmueble); 
+                return View(nameof(Formulario), inmueble);
             }
 
            

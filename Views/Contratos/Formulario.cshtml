@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = Model == null ? "Registrar contrato" : "Editar contrato";
 }
-<form asp-action="Guardar" method="POST">
+<form id="Formulario" asp-action="Guardar" method="POST">
 
     <div class="form-group">
     <div class="text-danger" asp-validation-summary="ModelOnly"></div>
@@ -37,11 +37,13 @@
         <label asp-for="FechaDesde"></label>
         <input class="form-control" asp-for="FechaDesde">
         <span asp-validation-for="FechaDesde" class="text-danger"></span>
+        
     </div>
     <div>
         <label asp-for="FechaHasta"></label>
         <input class="form-control" asp-for="FechaHasta">
         <span asp-validation-for="FechaHasta" class="text-danger"></span>
+        <span id="ValidarFecha" class="text-danger"></span>
     </div>
     <div>
         <input type="hidden" asp-for="Id">
@@ -103,5 +105,19 @@
             minimumInputLength: 3,
         }
     )
+     document.getElementById('Formulario').addEventListener('submit',(e)=>
+     {
+     const fechaDesde = document.getElementById('FechaDesde').value
+     const fechaHasta =document.getElementById('FechaHasta').value
+     if(fechaDesde>=fechaHasta)
+     {
+       e.preventDefault()
+       
+      document.getElementById('ValidarFecha').innerHTML='La fecha de fin tiene que ser mayor que la de inicio'
+     }
+     })
+     
+
     </script>
+    
 }
