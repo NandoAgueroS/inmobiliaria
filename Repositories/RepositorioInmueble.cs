@@ -120,7 +120,7 @@ namespace inmobiliaria.Repositories
             IList<Inmueble> res = new List<Inmueble>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Inmuebles WHERE Estado = true;";
+                string query = $@"SELECT * FROM Inmuebles i JOIN Propietarios p ON i.IdPropietario = p.IdPropietario JOIN Tipos t ON i.IdTipo = t.IdTipo WHERE i.Estado = true;";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -138,9 +138,22 @@ namespace inmobiliaria.Repositories
                             Direccion = reader.GetString(nameof(Inmueble.Direccion)),
                             Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
                             Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                            Estado = reader.GetBoolean(nameof(Contrato.Estado)),
+                            Propietario = new Propietario
+                            {
+                                Id = reader.GetInt32("IdPropietario"),
+                                Nombre = reader.GetString(nameof(Propietario.Nombre)),
+                                Apellido = reader.GetString(nameof(Propietario.Apellido)),
+                                Dni = reader.GetString(nameof(Propietario.Dni)),
+                                Telefono = reader.GetString(nameof(Propietario.Telefono)),
+                                Direccion = reader.GetString(nameof(Propietario.Direccion))
+                            },
 
-
-                            Estado = reader.GetBoolean(nameof(Inmueble.Estado))
+                            Tipo = new Tipo
+                            {
+                                Id = reader.GetInt32("IdTipo"),
+                                Descripcion = reader.GetString(nameof(Tipo.Descripcion))
+                            }
                         });
                     }
                     connection.Close();
