@@ -76,6 +76,11 @@ namespace inmobiliaria.Controllers
         [HttpPost]
         public IActionResult Guardar(Contrato contrato)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Error = "Los datos ingresados no son válidos";
+                return View(nameof(Formulario), contrato);
+            }
             try
             {
 
@@ -105,6 +110,8 @@ namespace inmobiliaria.Controllers
                 return View(nameof(Formulario), contrato);
             }
         }
+
+        
 
         public IActionResult Eliminar(int id)
         {

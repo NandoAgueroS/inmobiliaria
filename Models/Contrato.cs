@@ -1,9 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace inmobiliaria.Models
 {
     public class Contrato
     {
+        [BindNever]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "El inquilino es obligatorio")]
@@ -12,9 +15,9 @@ namespace inmobiliaria.Models
         [Required(ErrorMessage = "El inmueble es obligatorio")]
         public int IdInmueble { get; set; }
 
-        public Inquilino Inquilino { get; set; }
+        public Inquilino? Inquilino { get; set; }
 
-        public Inmueble Inmueble { get; set; }
+        public Inmueble? Inmueble { get; set; }
         
         [Required(ErrorMessage = "El monto es obligatorio")]
         public decimal Monto { get; set; }

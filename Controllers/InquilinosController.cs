@@ -80,6 +80,11 @@ public class InquilinosController : Controller
     [HttpPost]
     public IActionResult Guardar(Inquilino inquilino)
     {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Error = "Los datos ingresados no son válidos";
+            return View(nameof(Formulario), inquilino);
+        }
         try
         {
 
