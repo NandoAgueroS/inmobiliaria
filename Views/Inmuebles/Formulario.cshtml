@@ -19,13 +19,34 @@
         <span asp-validation-for="IdPropietario" class="text-danger"></span>
     </div>
     <div>
-        <label asp-for="IdTipo"></label>
-        <input class="form-control" asp-for="IdTipo">
+        <label asp-for="IdTipo">Tipo</label>
+        <select class="form-control" asp-for="IdTipo">
+            @{ var tipos = ViewBag.Tipos as IList<inmobiliaria.Models.Tipo>;
+
+                if (tipos != null && tipos.Count > 0)
+                {
+
+                    foreach (var tipo in tipos)
+                    {
+                        if (Model != null && Model.IdTipo == tipo.Id)
+                        {
+                            <option value="@tipo.Id" selected >@tipo.Descripcion</option>
+                        }
+                        else
+                        {
+                           <option value="@tipo.Id">@tipo.Descripcion</option>
+                        }
+                        
+                    }
+                }
+            }
+        </select>
         <span asp-validation-for="IdTipo" class="text-danger"></span>
     </div>
     <div>
-        <label asp-for="Uso"></label>
-        <input class="form-control" asp-for="Uso">
+        <label class="form-check" asp-for="Uso"></label>
+        <input class="form-check-input" asp-for="Uso" type="radio" value="residencial"> Residencial
+        <input class="form-check-input" asp-for="Uso" type="radio" value="comercial"> Comercial
         <span asp-validation-for="Uso" class="text-danger" ></span>
     </div>
     <div>

@@ -8,9 +8,11 @@ namespace inmobiliaria.Controllers
     public class InmueblesController : Controller
     {
         private readonly IRepositorioInmueble repositorioInmueble;
-        public InmueblesController(IRepositorioInmueble repositorioInmueble)
+        private readonly IRepositorioTipo repositorioTipo;
+        public InmueblesController(IRepositorioInmueble repositorioInmueble, IRepositorioTipo repositorioTipo)
         {
             this.repositorioInmueble = repositorioInmueble;
+            this.repositorioTipo = repositorioTipo;
         }
         public IActionResult Index()
         {
@@ -48,18 +50,20 @@ namespace inmobiliaria.Controllers
         public IActionResult Formulario(int id)
         {
 
-            if (id == 0)
-            {
-                return View();
-            }
-            else
-            {
                 try
                 {
 
+                    IList<Tipo> tipos = repositorioTipo.ListarTodos();
+                    ViewBag.Tipos = tipos;
+                if (id == 0)
+                {
+                    return View();
+                }
+                else
+                {
                     Inmueble inmueble = repositorioInmueble.BuscarPorId(id);
                     return View(inmueble);
-                }
+                }    }
 
 
                 catch (MySqlException ex)
@@ -80,8 +84,6 @@ namespace inmobiliaria.Controllers
 
 
 
-
-        }
 
         [HttpPost]
         public IActionResult Guardar(Inmueble inmueble)

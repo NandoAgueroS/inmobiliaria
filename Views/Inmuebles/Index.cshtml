@@ -13,6 +13,8 @@
     <div class="contenedor-card" >
         @foreach(var item in Model)
         {
+            <div>
+
           <div class="card" style="width: 18rem;"></div>
            <img src="~/images/default1.png" class="card-img-top imagen-card" alt="Imagen Inmueble">
           <div class="card-body">
@@ -31,37 +33,7 @@
           <a class="btn btn-primary" asp-controller="Inmuebles" asp-action="BuscarPorId" asp-route-id="@item.Id">Detalle</a>
           </div>
           
+            </div>
         }
      
     </div>        
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdPropietario)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdTipo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Uso)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Direccion)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Precio)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Coordenadas)
-                </td>
-                <div class="btn-group" role="group">
-                    <td>
-                        <a class="btn btn-warning" asp-controller="Inmuebles" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
-                        <a class="btn btn-danger" asp-controller="Inmuebles" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
-                    </td>
-               </div>
-            </tr>
-        }
-    </tbody>
-</table>
