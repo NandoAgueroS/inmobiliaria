@@ -7,18 +7,18 @@
     <div class="form-group">
     <div class="text-danger" asp-validation-summary="ModelOnly"></div>
     <div>
-        <label asp-for="IdInquilino">Inquilino</label>
+        <label asp-for="IdInquilino">Inquilino (nombre)</label>
         <select name="IdInquilino" id="IdInquilino" style="width: 300px;">
         @if (Model != null && Model.Inquilino != null)
         {
-            <option selected value="@Model.Inquilino.Id">@Model.Inquilino.Nombre @Model.Inquilino.Apellido</option>
+            <option selected value="@Model.Inquilino.Id">@Model.Inquilino.Nombre @Model.Inquilino.Apellido (@Model.Inquilino.Dni)</option>
         }
         </select>
         <input type="hidden" asp-for="IdInquilino">
         <span asp-validation-for="IdInquilino" class="text-danger"></span>
     </div>
     <div>
-        <label asp-for="IdInmueble">Inmueble</label>
+        <label asp-for="IdInmueble">Inmueble (dirección)</label>
         <select name="IdInmueble" id="IdInmueble" style="width: 300px;">
             @if (Model != null && Model.Inmueble != null)
             {
@@ -71,7 +71,7 @@
                 processResults: function (data) {
                     return {
                             results: data.map(element => {
-                            return { id: element.id, text: element.nombre + ' ' + element.apellido}
+                            return { id: element.id, text: element.nombre + ' ' + element.apellido + ' (' + element.dni + ')'}
                         })
                     };
                 },
