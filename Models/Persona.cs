@@ -6,8 +6,8 @@ namespace inmobiliaria.Models
     public class Persona
     {
 
-        [BindNever]
-        public int Id { get; set; }
+        // [BindNever]
+        public int? Id { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
         public string Nombre { get; set; }

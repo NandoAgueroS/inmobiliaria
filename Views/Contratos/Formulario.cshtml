@@ -109,7 +109,7 @@
      {
      const fechaDesde = document.getElementById('FechaDesde').value
      const fechaHasta =document.getElementById('FechaHasta').value
-     if(fechaDesde>=fechaHasta)
+     if(fechaDesde && fechaHasta && fechaDesde>=fechaHasta)
      {
        e.preventDefault()
        

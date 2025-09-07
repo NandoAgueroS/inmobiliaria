@@ -75,6 +75,7 @@
       <div class="modal-body">
         <label for="descripcion" class="form-label">Tipo</label>
         <input type="text" class="form-control" id="descripcion">
+        <span class="text-danger" id="ValidacionDescripcion"></span> 
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -91,42 +92,46 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                $("#propietario").html("<b>Propietario</b>: <br>" + data.propietario.nombre + " " + data.propietario.apellido + " (" + data.propietario.dni + ")");
-                $("#direccion").html("<b>Direccion</b>: <br>" + data.direccion);
-                $("#tipo").html("<b>Tipo</b>: <br> " + data.tipo.descripcion);
-                $("#uso").html("<b>Uso</b>: <br>" + data.uso);
-                $("#ambientes").html("<b>Ambientes</b>: <br>" + data.ambientes);
-                $("#coordenadas").html("<b>Coordenadas</b>: <br>" + data.coordenadas);
-                $("#precio").html("<b>Precio</b>: <br>" + data.precio);
-                $("#detalle").modal('show');
+                document.getElementById('propietario').innerHTML = "<b>Propietario</b>: <br>" + data.propietario.nombre + " " + data.propietario.apellido + " (" + data.propietario.dni + ")";
+                document.getElementById('direccion').innerHTML = "<b>Direccion</b>: <br>" + data.direccion;
+                document.getElementById('tipo').innerHTML = "<b>Tipo</b>: <br> " + data.tipo.descripcion;
+                document.getElementById('uso').innerHTML = "<b>Uso</b>: <br>" + data.uso;
+                document.getElementById('ambientes').innerHTML = "<b>Ambientes</b>: <br>" + data.ambientes;
+                document.getElementById('coordenadas').innerHTML = "<b>Coordenadas</b>: <br>" + data.coordenadas;
+                document.getElementById('precio').innerHTML = "<b>Precio</b>: <br>" + data.precio;
+                $('#detalle').modal('show');
             })
             .catch(error => {
                 console.error('Error:', error)
                 toastr.error('No se pudieron cargar los detalles del inmueble');
                 });
         }
-        $('#guardar-tipo').click(() => {
-            const descripcion = $('#descripcion').val();
+        document.getElementById('guardar-tipo').addEventListener('click', () => {
+            const descripcion = document.getElementById('descripcion').value;
             const tipo= { descripcion: descripcion};
-            fetch('/Inmuebles/AltaTipo', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(tipo)
-            })
-            .then(response => {
-                if (response.ok) {
-                    toastr.success('Creado correctamente');
-                    $('#crearTipoModal').modal('hide');
-                } else {
-                    toastr.error('Error al guaradar el tipo de inmueble');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                toastr.error('Error al guardar el tipo de inmueble');
-            });
-        });
+            if (!descripcion || descripcion.trim() === "") {
+                document.getElementById('ValidacionDescripcion').innerHTML = "El tipo es obligatorio";
+            }else{
+                document.getElementById('ValidacionDescripcion').innerHTML = "";
+                fetch('/Inmuebles/AltaTipo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(tipo)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        toastr.success('Creado correctamente');
+                        $('#crearTipoModal').modal('hide');
+                    } else {
+                        toastr.error('Error al guaradar el tipo de inmueble');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('Error al guardar el tipo de inmueble');
+                });
+            }});
     </script>
     }

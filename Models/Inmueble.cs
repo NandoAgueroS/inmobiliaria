@@ -6,8 +6,7 @@ namespace inmobiliaria.Models
     public class Inmueble 
     {
 
-        [BindNever]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [Required(ErrorMessage = "Es obligatorio por el tipo")]
         public int IdTipo{ get; set; }
@@ -31,7 +30,7 @@ namespace inmobiliaria.Models
         [Required(ErrorMessage = "Es un campo obligatorio el propietario")]
         public int IdPropietario { get; set; }
 
-        public Propietario Propietario { get; set; }
+        public Propietario? Propietario { get; set; }
         
         public bool Estado { get; set; }
 
