@@ -84,7 +84,7 @@ namespace inmobiliaria.Controllers
             try
             {
 
-                if (contrato.Id == 0)
+                if (contrato.Id == null)
                 {
                     repositorioContrato.Alta(contrato);
                     TempData["Accion"] = Accion.Alta.value;

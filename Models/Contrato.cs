@@ -6,8 +6,7 @@ namespace inmobiliaria.Models
 {
     public class Contrato
     {
-        [BindNever]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [Required(ErrorMessage = "El inquilino es obligatorio")]
         public int IdInquilino { get; set; }

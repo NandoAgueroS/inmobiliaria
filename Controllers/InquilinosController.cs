@@ -88,7 +88,7 @@ public class InquilinosController : Controller
         try
         {
 
-            if (inquilino.Id == 0)
+            if (inquilino.Id == null)
             {
                 repositorioInquilino.Alta(inquilino);
                 TempData["Accion"] = Accion.Alta.value;

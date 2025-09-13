@@ -90,7 +90,7 @@ namespace inmobiliaria.Controllers
         [HttpPost]
         public IActionResult Guardar(Inmueble inmueble)
         {
-             if (!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
             ViewBag.Error = "Los datos ingresados no son válidos";
             return View(nameof(Formulario), inmueble);
@@ -98,7 +98,7 @@ namespace inmobiliaria.Controllers
           
             try
             {
-                if (inmueble.Id == 0)
+                if (inmueble.Id == null)
                 {
                     repositorioInmueble.Alta(inmueble);
                     TempData["Accion"] = Accion.Alta.value;

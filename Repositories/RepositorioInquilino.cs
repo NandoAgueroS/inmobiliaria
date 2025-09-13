@@ -22,7 +22,7 @@ namespace inmobiliaria.Repositories
                 {nameof(Inquilino.Dni)},
                 {nameof(Inquilino.Telefono)},
                 {nameof(Inquilino.Email)},
-                {nameof(Inquilino.Estado)}) VALUES(@Nombre, @Apellido, @Telefono, @Dni, @Email, 1);
+                {nameof(Inquilino.Estado)}) VALUES(@Nombre, @Apellido, @Dni, @Telefono, @Email, 1);
                 SELECT LAST_INSERT_ID();";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {

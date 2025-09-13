@@ -89,7 +89,7 @@ public class PropietariosController : Controller
         try
         {
 
-            if (propietario.Id == 0)
+            if (propietario.Id == null)
             {
                 repositorioPropietario.Alta(propietario);
                 TempData["Accion"] = Accion.Alta.value;
