@@ -19,9 +19,6 @@
                 @Html.DisplayNameFor(model => model.Inmueble)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Monto)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.FechaDesde)
             </th>
             <th>
@@ -41,9 +38,6 @@
                     @Html.DisplayFor(modelItem => item.Inmueble.Direccion)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Monto)
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.FechaDesde)
                 </td>
                 <td>
@@ -53,9 +47,56 @@
                     <td>
                         <a class="btn btn-warning" asp-controller="Contratos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
                         <a class="btn btn-danger" asp-controller="Contratos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
+                        <button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
+                          Detalle
+                        </button>
                     </td>
                </div>
             </tr>
         }
     </tbody>
 </table>
+<div class="modal fade" id="detalle" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="detalleModalLabel">Detalles del contrato</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      <p id="propietario"></p>
+        <p id="inquilino"></p>
+        <p id="inmueble"></p>
+        <p id="monto"></p>
+        <p id="fecha_desde"></p>
+        <p id="fecha_hasta"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts {
+    <script>
+        function cargarDatos(item){
+
+            const datos = fetch('/Contratos/BuscarPorId/' + item)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('propietario').innerHTML = "<b>Propietario</b>: <br>" + data.inmueble.propietario.nombre + " " + data.inmueble.propietario.apellido + " (" + data.inmueble.propietario.dni + ")";
+                document.getElementById('inquilino').innerHTML = "<b>Inquilino</b>: <br>" + data.inquilino.nombre + " " + data.inquilino.apellido + " (" + data.inquilino.dni + ")";
+                document.getElementById('inmueble').innerHTML = "<b>Inmueble</b>: <br> " + data.inmueble.direccion;
+                document.getElementById('monto').innerHTML = "<b>Monto</b>: <br>" + data.monto;
+                document.getElementById('fecha_desde').innerHTML = "<b>Fecha inicio</b>: <br>" + data.fechaDesde;
+                document.getElementById('fecha_hasta').innerHTML = "<b>Fecha hasta</b>: <br>" + data.fechaHasta;
+                $('#detalle').modal('show');
+            })
+            .catch(error => {
+                console.error('Error:', error)
+                toastr.error('No se pudieron cargar los detalles del contrato');
+                });
+        }
+    </script>
+    }

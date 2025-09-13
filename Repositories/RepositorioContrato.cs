@@ -150,7 +150,17 @@ namespace inmobiliaria.Repositories
             Contrato res = null;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Contratos c JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino JOIN Inmuebles im ON c.IdInmueble = im.IdInmueble JOIN Tipos t ON im.IdTipo = im.IdTipo WHERE c.IdContrato = @Id AND c.Estado = true";
+                string query = $@"SELECT c.*,
+                im.*,
+                iq.nombre as IqNombre, iq.apellido as IqApellido, iq.dni as IqDni, iq.telefono as IqTelefono, iq.email as IqEmail,
+                p.nombre as PNombre, p.apellido as PApellido, p.dni as PDni, p.telefono as PTelefono, p.email as PEmail,
+                t.*
+                FROM Contratos c 
+                JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino 
+                JOIN Inmuebles im ON c.IdInmueble = im.IdInmueble 
+                JOIN Tipos t ON t.IdTipo = im.IdTipo 
+                JOIN Propietarios p ON im.IdPropietario = p.IdPropietario
+                WHERE c.IdContrato = @Id AND c.Estado = true";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -173,11 +183,11 @@ namespace inmobiliaria.Repositories
                             Inquilino = new Inquilino
                             {
                                 Id = reader.GetInt32("IdInquilino"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                Dni = reader.GetString("Dni"),
-                                Telefono = reader.GetString("Telefono"),
-                                Email = reader.GetString("Email")
+                                Nombre = reader.GetString("IqNombre"),
+                                Apellido = reader.GetString("IqApellido"),
+                                Dni = reader.GetString("IqDni"),
+                                Telefono = reader.GetString("IqTelefono"),
+                                Email = reader.GetString("IqEmail")
                             },
                             Inmueble = new Inmueble
                             {
@@ -192,7 +202,16 @@ namespace inmobiliaria.Repositories
                                 Precio = reader.GetDecimal("Precio"),
                                 Coordenadas = reader.GetString("Coordenadas"),
                                 Estado = reader.GetBoolean("Estado"),
-                                Direccion = reader.GetString("Direccion")
+                                Direccion = reader.GetString("Direccion"),
+                                Propietario = new Propietario
+                                {
+                                    Id = reader.GetInt32("IdPropietario"),
+                                    Nombre = reader.GetString("PNombre"),
+                                    Apellido = reader.GetString("PApellido"),
+                                    Dni = reader.GetString("PDni"),
+                                    Telefono = reader.GetString("PTelefono"),
+                                    Email = reader.GetString("PEmail")
+                                }
                             }
                         };
                     }

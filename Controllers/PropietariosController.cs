@@ -189,7 +189,26 @@ public class PropietariosController : Controller
             
         
     }
-    
+    public IActionResult BuscarPorId(int id)
+        {
+            try
+            {
+                Propietario propietario = repositorioPropietario.BuscarPorId(id);
+                return Json(propietario);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500, "Error en la base de datos");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+
+                return StatusCode(500, "Error general");
+            }
+        }
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

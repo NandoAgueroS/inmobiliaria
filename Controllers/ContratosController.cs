@@ -142,5 +142,26 @@ namespace inmobiliaria.Controllers
             repositorioContrato.Reactivar(id);
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult BuscarPorId(int id)
+        {
+            try
+            {
+                Contrato contrato = repositorioContrato.BuscarPorId(id);
+                return Json(contrato);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500, "Error en la base de datos");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+
+                return StatusCode(500, "Error general");
+            }
+        }
     }
 }
