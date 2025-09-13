@@ -40,18 +40,39 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Dni)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
+                
                 <div class="btn-group" role="group">
                     <td>
                         <a class="btn btn-warning" asp-controller="Inquilinos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
                         <a class="btn btn-danger" asp-controller="Inquilinos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
-                        @* <button class="btn btn-danger" type="button" onclick="eliminar(@item.Id)">Eliminar</button> *@
+                        <button class="btn btn-primary" type="button" onclick="cargarDatos(@item.Id)">Detalle</button>
                     </td>
                </div>
             </tr>
         }
+
+        <div class="modal fade" id="detalle" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="detalleModalLabel">Detalles de Inquilino </h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="nombre"></p>
+        <p id="apellido"></p>
+        <p id="dni"></p>
+        <p id="telefono"></p>
+        <p id="email"></p>
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
     </tbody>
 </table>
 @section Scripts {
@@ -70,5 +91,25 @@
                 })
             }
     })}
+
+    function cargarDatos(item){
+
+            const datos = fetch('/Inquilinos/BuscarPorId/' + item)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('nombre').innerHTML = "<b>Nombre</b>: <br> " + data.nombre;
+                document.getElementById('apellido').innerHTML = "<b>Apellido</b>: <br> " + data.apellido;
+                document.getElementById('dni').innerHTML = "<b>Dni</b>: <br> " + data.dni;
+                document.getElementById('telefono').innerHTML = "<b>Telefono</b>: <br> " + data.telefono;
+                document.getElementById('email').innerHTML = "<b>Email</b>: <br> " + data.email;
+                
+                $('#detalle').modal('show');
+            })
+            .catch(error => {
+                console.error('Error:', error)
+                toastr.error('No se pudieron cargar los detalles del inquilino');
+                });
+        }
     </script>
 }

@@ -20,7 +20,8 @@ namespace inmobiliaria.Models
         [Required(ErrorMessage = "Es obligatorio poner la cantidad de ambientes")]
         public int Ambientes { get; set; }
 
-         [Required(ErrorMessage = "La direccion es un campo obligatorio")] public string Direccion { get; set; }
+        [Required(ErrorMessage = "La direccion es un campo obligatorio")]
+          public string Direccion { get; set; }
 
         [Required(ErrorMessage = "El precio es un campo obligatorio")]
         public decimal Precio { get; set; }

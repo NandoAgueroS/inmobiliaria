@@ -15,9 +15,9 @@ public class InquilinosController : Controller
     public InquilinosController(IRepositorioInquilino repositorioInquilino, IRepositorioContrato repositorioContrato)
     {
         this.repositorioInquilino = repositorioInquilino;
-        this.repositorioContrato= repositorioContrato;
+        this.repositorioContrato = repositorioContrato;
     }
-    
+
     public IActionResult Index()
     {
         ViewBag.ControllerName = "Inquilinos";
@@ -132,7 +132,8 @@ public class InquilinosController : Controller
 
 
             return RedirectToAction(nameof(Index));
-        }        catch (MySqlException ex)
+        }
+        catch (MySqlException ex)
         {
             TempData["Error"] = "Ocurrió un error al eliminar el inquilino";
             Console.WriteLine(ex.ToString());
@@ -157,4 +158,25 @@ public class InquilinosController : Controller
         IList<Inquilino> inquilinos = repositorioInquilino.BuscarPorNombre(nombre);
         return Json(inquilinos);
     }
+    
+    public IActionResult BuscarPorId(int id)
+        {
+            try
+            {
+                Inquilino inquilino = repositorioInquilino.BuscarPorId(id);
+                return Json(inquilino);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return StatusCode(500, "Error en la base de datos");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+
+                return StatusCode(500, "Error general");
+            }
+        }
 }
