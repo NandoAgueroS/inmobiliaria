@@ -1,0 +1,95 @@
+@model IEnumerable<inmobiliaria.Models.Usuario>
+@{
+    ViewData["Title"] = "Listado de Usuarios";
+}
+
+<div class="text-center">
+    <h1>Usuarios</h1>
+</div>
+<div>
+    <a class="btn btn-primary" asp-controller="Usuarios" asp-action="Formulario">Registrar</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Apellido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Avatar)
+            </th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Apellido)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                
+                <div class="btn-group" role="group">
+                    <td>
+                        <a class="btn btn-warning" asp-controller="Usuarios" asp-action="Editar" asp-route-id="@item.Id">Editar</a>
+                        <a class="btn btn-danger" asp-controller="Usuarios" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
+                        <button class="btn btn-primary" type="button" onclick="cargarDatos(@item.Id)">Detalle</button>
+                    </td>
+               </div>
+            </tr>
+        }
+
+        
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" asp-action="Eliminar">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </tbody>
+</table>
+@section Scripts {
+    <script type="text/javascript">
+
+    function eliminar(id){
+        fetch('/Usuarios/Eliminar/' + id)
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } 
+    })}
+
+    function cargarDatos(item){
+
+            const datos = fetch('/Usuarios/BuscarPorId/' + item)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('nombre').innerHTML = "<b>Nombre</b>: <br> " + data.nombre;
+                document.getElementById('apellido').innerHTML = "<b>Apellido</b>: <br> " + data.apellido;
+                document.getElementById('email').innerHTML = "<b>Email</b>: <br> " + data.email;
+                document.getElementById('avatar').innerHTML = "<b>Avatar</b>: <br> " + data.avatar;
+               
+                
+                $('#detalle').modal('show');
+            })
+            .catch(error => {
+                console.error('Error:', error)
+                toastr.error('No se pudieron cargar los detalles del usuario');
+                });
+        }
+    </script>
+}

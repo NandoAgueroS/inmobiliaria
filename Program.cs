@@ -1,5 +1,11 @@
 using System.Globalization;
+using System.Security.Claims;
+//using inmmobiliaria.Repositories;
+
+//using Inmmobiliaria.Repositories;
 using inmobiliaria.Repositories;
+//using Inmobiliaria.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +17,21 @@ builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
 builder.Services.AddScoped<IRepositorioTipo, RepositorioTipo>();
 builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
 builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
+builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>//el sitio web valida con cookie
+    {
+        options.LoginPath = "/Usuarios/Login";
+        options.LogoutPath = "/Usuarios/Logout";
+        options.AccessDeniedPath = "/Home/Restringido";
+
+    });
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("Empleado", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador", "Empleado"));
+	
+});
 
 var app = builder.Build();
 app.UseStaticFiles();
@@ -25,6 +46,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -36,3 +59,5 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+
