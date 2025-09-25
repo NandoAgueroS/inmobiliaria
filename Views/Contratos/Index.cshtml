@@ -46,9 +46,16 @@
                 <div class="btn-group" role="group">
                     <td>
                         <a class="btn btn-warning" asp-controller="Contratos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
+                        <a class="btn btn-warning" asp-controller="Pagos" asp-action="Formulario" asp-route-id="@item.Id">Crear Pago</a>
                         <a class="btn btn-danger" asp-controller="Contratos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
                         <button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
                           Detalle
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="cancelarModal(@item.Id)">
+                         Cancelar 
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="renovarModal(@item.Id)">
+                        Renovar
                         </button>
                     </td>
                </div>
@@ -98,5 +105,99 @@
                 toastr.error('No se pudieron cargar los detalles del contrato');
                 });
         }
+        let idContrato;
+        function cancelarModal(id){
+          idContrato = id;
+          const modal= document.getElementById('modal_cancelacion');
+			const abrirModal = () => {//función flecha
+				//modales: https://getbootstrap.com/docs/4.0/components/modal/
+				$("#modal_cancelacion").modal("show");
+			}
+			if (!modal) {
+          fetch("/Contratos/CancelarModal/" + id)
+              .then(response => response.text())
+				.then(data => {
+					console.log("Modal: ", data);
+					var div = document.createElement("div");
+					div.innerHTML = data;
+					document.body.appendChild(div);
+					abrirModal();
+				}).catch(error=> {
+					console.log("Error: ", error);
+				});
+			} else {
+					abrirModal();
+			}
+        }
+        function renovarModal(id){
+          idContrato = id;
+          const modalRenovacion = document.getElementById('modal_renovacion');
+			const abrirModal = (id) => {//función flecha
+				//modales: https://getbootstrap.com/docs/4.0/components/modal/
+				$(id).modal("show");
+			}
+			if (!modalRenovacion) {
+          fetch("/Contratos/RenovarModal/" + id)
+              .then(response => response.text())
+				.then(data => {
+					console.log("Modal: ", data);
+					var div = document.createElement("div");
+					div.innerHTML = data;
+					document.body.appendChild(div);
+          agregarListenerModal()
+					abrirModal("#modal_renovacion");
+				}).catch(error=> {
+					console.log("Error: ", error);
+				});
+			} else {
+					abrirModal("#modal_renovacion");
+			}
+        }
+        function renovarContrato(){
+          fetch("/Contratos/Renovar/" + idContrato, {
+            method: "POST",
+            body: {
+              monto: document.getElementById('nuevo_monto').value,
+              fechaDesde: document.getElementById('fecha_desde').value,
+              fechaHasta: document.getElementById('fecha_hasta').value
+            }
+          })
+            .then( ()=> {
+              toastr.success('El contrato ha sido renovado')
+              location.reload()
+            }
+            )
+          .catch(error => {
+            console.error('Error:', error)
+            toastr.error('No se pudo renovar el contrato');
+          });
+        }
+
+        function agregarListenerModal(){
+     document.getElementById('form_renovar').addEventListener('submit',(e)=>
+     {
+     const fechaDesde = document.getElementById('FechaDesde').value
+     const fechaHasta =document.getElementById('FechaHasta').value
+     if(fechaDesde && fechaHasta && fechaDesde>=fechaHasta)
+     {
+       e.preventDefault()
+       
+              document.getElementById('ValidarFecha').innerHTML='La fecha de fin tiene que ser mayor que la de inicio'
+         }else {
+              e.preventDefault()
+           fetch("/Inmuebles/Desocupado/" + document.getElementById("IdInmueble").value + "/"  + fechaDesde + "/" + fechaHasta)
+           .then(response => response.json())
+           .then(data => {
+            if(!data){
+
+               document.getElementById('ValidarFecha').innerHTML = 'La fecha se encuentra ocupada'
+
+                    }else {
+                      e.target.submit()
+                    }
+           })
+           .catch(error => console.error(error))
+         }
+            })}
     </script>
     }

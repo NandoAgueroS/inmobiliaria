@@ -33,6 +33,8 @@ namespace inmobiliaria.Models
 
         public Propietario? Propietario { get; set; }
         
+        public bool Disponible { get; set; }
+        
         public bool Estado { get; set; }
 
         

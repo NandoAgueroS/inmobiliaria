@@ -8,9 +8,9 @@ namespace inmobiliaria.Repositories
         public IList<Pago> BuscarPagoPorContrato(int idContrato);
 
         public IList<Pago> BuscarPagoPorFecha(DateOnly fechaActual);
-
-        
-
-
+        public Pago BuscarUltimoPago(int idContrato);
+        public IList<Pago> ListarPorInquilino(int idInquilino);
+        public int ContarPagosMensuales(int idContrato);
+        public int ObtenerUltimoNumeroPago(int idContrato);
     }
 }

@@ -1,0 +1,29 @@
+@model inmobiliaria.Models.RenovarContratoDTO
+
+<div class="modal fade" id="modal_renovacion" tabindex="-1" aria-labelledby="renovacionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="renovacionModalLabel">Detalles del contrato</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form asp-action="Renovar" method="POST" id="form_renovar">
+          <label asp-for="NuevoMonto"></label>
+          <input type="number" asp-for="NuevoMonto">
+          <label for="FechaDesde"></label>
+          <input type="date" asp-for="FechaDesde">
+          <label asp-for="FechaHasta"></label>
+          <input type="date" asp-for="FechaHasta">
+          <button type="submit">Renovar</button>
+          <input type="hidden" asp-for="IdOriginal">
+          <input type="hidden" id="IdInmueble" value="@ViewBag.IdInmueble">
+          <span id="ValidarFecha" class="text-danger"></span>
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

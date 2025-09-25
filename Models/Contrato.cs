@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace inmobiliaria.Models
 {
@@ -17,7 +15,6 @@ namespace inmobiliaria.Models
         public Inquilino? Inquilino { get; set; }
 
         public Inmueble? Inmueble { get; set; }
-        
         [Required(ErrorMessage = "El monto es obligatorio")]
         public decimal Monto { get; set; }
 
@@ -31,6 +28,8 @@ namespace inmobiliaria.Models
         [Display(Name = "Fin")]
         [Required(ErrorMessage = "La fecha de fin es obligatoria")]
         public DateOnly FechaHasta { get; set; }
+
+        public DateOnly? FechaAnulado { get; set; }
 
         public bool Estado { get; set; }
     }

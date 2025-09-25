@@ -5,7 +5,7 @@ namespace inmobiliaria.Repositories
 {
     public class RepositorioPago : RepositorioBase, IRepositorioPago
     {
-        protected RepositorioPago(IConfiguration configuration) : base(configuration)
+        public RepositorioPago(IConfiguration configuration) : base(configuration)
         {
         }
 
@@ -19,17 +19,19 @@ namespace inmobiliaria.Repositories
                 {nameof(Pago.Concepto)},
                 {nameof(Pago.Monto)},
                 {nameof(Pago.Fecha)},
+                {nameof(Pago.CorrespondeAMes)},
                 {nameof(Pago.IdContrato)},
                 {nameof(Pago.Estado)}) VALUES (
-                @NumeroPago, @Concepto, @Monto, @Fecha, @IdContrato, true);
+                @NumeroPago, @Concepto, @Monto, @Fecha, @CorrespondeAMes, @IdContrato, true);
                 SELECT LAST_INSERT_ID();";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@NumeroPago", m.NumeroPago);
-                    command.Parameters.AddWithValue("@NumeroPago", m.Concepto);
-                    command.Parameters.AddWithValue("@NumeroPago", m.Monto);
-                    command.Parameters.AddWithValue("@NumeroPago", m.Fecha);
-                    command.Parameters.AddWithValue("@NumeroPago", m.IdContrato);
+                    command.Parameters.AddWithValue("@Concepto", m.Concepto);
+                    command.Parameters.AddWithValue("@Monto", m.Monto);
+                    command.Parameters.AddWithValue("@Fecha", m.Fecha.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@CorrespondeAMes", m.CorrespondeAMes == null ? DBNull.Value : m.CorrespondeAMes.Value.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@IdContrato", m.IdContrato);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     m.Id = res;
@@ -60,8 +62,8 @@ namespace inmobiliaria.Repositories
         public IList<Pago> BuscarPagoDeInquilino(int idInquilino)
         {
             IList<Pago> res = new List<Pago>();
-            
-            
+
+
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato JOIN Inquilinos i ON c.IdInquilino = i.IdInquilino AND p.Estado = true";
@@ -85,7 +87,7 @@ namespace inmobiliaria.Repositories
                             Fecha = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.Fecha))),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
                             Estado = reader.GetBoolean(nameof(Pago.Estado)),
-                           
+
 
                             Contrato = new Contrato
                             {
@@ -97,14 +99,14 @@ namespace inmobiliaria.Repositories
                                 FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
                                 Estado = reader.GetBoolean(nameof(Contrato.Estado)),
 
-                                 Inquilino = new Inquilino
-                                 {
-                                     Id = reader.GetInt32("IdInquilino"),
-                                     Nombre = reader.GetString(nameof(Inquilino.Nombre)),
-                                     Apellido = reader.GetString(nameof(Inquilino.Apellido)),
-                                     Dni = reader.GetString(nameof(Inquilino.Dni)),
-                                     Telefono = reader.GetString(nameof(Inquilino.Telefono))
-                                 }
+                                Inquilino = new Inquilino
+                                {
+                                    Id = reader.GetInt32("IdInquilino"),
+                                    Nombre = reader.GetString(nameof(Inquilino.Nombre)),
+                                    Apellido = reader.GetString(nameof(Inquilino.Apellido)),
+                                    Dni = reader.GetString(nameof(Inquilino.Dni)),
+                                    Telefono = reader.GetString(nameof(Inquilino.Telefono))
+                                }
 
                             }
 
@@ -119,9 +121,9 @@ namespace inmobiliaria.Repositories
 
         public IList<Pago> BuscarPagoPorContrato(int idContrato)
         {
-            
+
             IList<Pago> res = new List<Pago>();
-             using (MySqlConnection connection = new MySqlConnection(connectionString))
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato AND c.Estado = true";
 
@@ -160,7 +162,7 @@ namespace inmobiliaria.Repositories
                     }
                     connection.Close();
                 }
-                
+
             }
             return res;
 
@@ -168,9 +170,9 @@ namespace inmobiliaria.Repositories
 
         public IList<Pago> ListarPagosPorContratoconFechaActual(int idContrato)
         {
-          
-           IList<Pago> res = new List<Pago>();
-             using (MySqlConnection connection = new MySqlConnection(connectionString))
+
+            IList<Pago> res = new List<Pago>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato WHERE CURDATE() BETWEEN c.FechaDesde AND c.FechaHasta  AND c.IdContrato = @IdContrato AND c.Estado = true";
 
@@ -208,22 +210,22 @@ namespace inmobiliaria.Repositories
                         });
                     }
                     connection.Close();
-                    
+
                 }
-                
+
             }
             return res;
 
-           
+
 
 
         }
 
         public Pago BuscarPorId(int id)
         {
-             Pago res = null;
+            Pago res = null;
 
-             using (MySqlConnection connection = new MySqlConnection(connectionString))
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"SELECT * FROM Pagos p WHERE p.idPagos = @id AND estado = true";
 
@@ -269,11 +271,11 @@ namespace inmobiliaria.Repositories
 
         public IList<Pago> ListarTodos()
         {
-             IList<Pago> res = new List<Pago>();
-             
-             using (MySqlConnection connection = new MySqlConnection(connectionString))
+            IList<Pago> res = new List<Pago>();
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Pagos WHERE Estado = true";
+                string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato WHERE p.Estado = true";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -292,7 +294,6 @@ namespace inmobiliaria.Repositories
                             Monto = reader.GetDecimal(nameof(Pago.Monto)),
                             Fecha = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.Fecha))),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
-                            Estado = reader.GetBoolean(nameof(Pago.Estado)),
 
                             Contrato = new Contrato
                             {
@@ -302,7 +303,6 @@ namespace inmobiliaria.Repositories
                                 Monto = reader.GetDecimal(nameof(Contrato.Monto)),
                                 FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
                                 FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
-                                Estado = reader.GetBoolean(nameof(Contrato.Estado))
                             }
 
                         });
@@ -365,7 +365,7 @@ namespace inmobiliaria.Repositories
         public IList<Pago> BuscarPagoPorFecha(DateOnly fechaAcorroborar)
         {
             IList<Pago> res = new List<Pago>();
-             using (MySqlConnection connection = new MySqlConnection(connectionString))
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato WHERE MONTH(p.Fecha) = MONTH(@FechaAcorroborar) AND @FechaAcorroborar BETWEEN c.FechaDesde AND c.FechaHasta AND c.Estado = true";
 
@@ -387,6 +387,7 @@ namespace inmobiliaria.Repositories
                             Monto = reader.GetDecimal(nameof(Pago.Monto)),
                             Fecha = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.Fecha))),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                            CorrespondeAMes = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.CorrespondeAMes))),
                             Estado = reader.GetBoolean(nameof(Pago.Estado)),
 
                             Contrato = new Contrato
@@ -403,12 +404,151 @@ namespace inmobiliaria.Repositories
                         });
                     }
                     connection.Close();
-                    
+
                 }
-                
+
             }
             return res;
 
         }
+        public Pago BuscarUltimoPago(int idContrato)
+        {
+            Pago res = null;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato 
+                WHERE c.Estado = true
+                AND c.IdContrato = @IdContrato
+                AND p.CorrespondeAMes IS NOT NULL
+                ORDER BY p.CorrespondeAMes DESC
+                LIMIT 1";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+
+                    command.Parameters.AddWithValue("@IdContrato", idContrato);
+                    connection.Open();
+
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        res = new Pago
+                        {
+                            Id = reader.GetInt32("IdPago"),
+                            NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
+                            Concepto = reader.GetString(nameof(Pago.Concepto)),
+                            Monto = reader.GetDecimal(nameof(Pago.Monto)),
+                            Fecha = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.Fecha))),
+                            CorrespondeAMes = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.CorrespondeAMes))),
+                            IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                            Estado = reader.GetBoolean(nameof(Pago.Estado)),
+
+                            Contrato = new Contrato
+                            {
+                                Id = reader.GetInt32("IdContrato"),
+                                IdInquilino = reader.GetInt32(nameof(Contrato.IdInquilino)),
+                                IdInmueble = reader.GetInt32(nameof(Contrato.IdInmueble)),
+                                Monto = reader.GetDecimal(nameof(Contrato.Monto)),
+                                FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
+                                FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
+                                Estado = reader.GetBoolean(nameof(Contrato.Estado))
+                            }
+
+
+                        };
+                        connection.Close();
+
+                    }
+                }
+
+                return res;
+            }
+        }
+
+        public IList<Pago> ListarPorInquilino(int idInquilino)
+        {
+
+            IList<Pago> res = new List<Pago>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato 
+                WHERE c.IdInquilino = @IdInquilino";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+
+                    command.Parameters.AddWithValue("@IdInquilino", idInquilino);
+                    connection.Open();
+
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Pago
+                        {
+                            Id = reader.GetInt32("IdPago"),
+                            NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
+                            Concepto = reader.GetString(nameof(Pago.Concepto)),
+                            Monto = reader.GetDecimal(nameof(Pago.Monto)),
+                            Fecha = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.Fecha))),
+                            CorrespondeAMes = reader[nameof(Pago.CorrespondeAMes)] is DBNull ? null : (DateOnly?)DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.CorrespondeAMes))),
+                            IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                            Estado = reader.GetBoolean(nameof(Pago.Estado)),
+
+                            Contrato = new Contrato
+                            {
+                                Id = reader.GetInt32("IdContrato"),
+                                IdInquilino = reader.GetInt32(nameof(Contrato.IdInquilino)),
+                                IdInmueble = reader.GetInt32(nameof(Contrato.IdInmueble)),
+                                Monto = reader.GetDecimal(nameof(Contrato.Monto)),
+                                FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
+                                FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
+                                Estado = reader.GetBoolean(nameof(Contrato.Estado))
+                            }
+
+
+                        });
+                    }
+                    connection.Close();
+
+                }
+
+                return res;
+            }
+        }
+        public int ObtenerUltimoNumeroPago(int idContrato)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT NumeroPago FROM `Pagos` WHERE IdContrato = 1 ORDER BY NumeroPago DESC LIMIT 1;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdContrato", idContrato);
+                    connection.Open();
+                    res = Convert.ToInt32(command.ExecuteScalar());
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+
+        public int ContarPagosMensuales(int idContrato)
+        {
+
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT COUNT(CorrespondeAMes) FROM Pagos WHERE IdContrato = @IdContrato AND CorrespondeAMes IS NOT NULL";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdContrato", idContrato);
+                    connection.Open();
+                    res = Convert.ToInt32(command.ExecuteScalar());
+                    connection.Close();
+                }
+            }
+            return res;
+        }
     }
 }
+

@@ -9,14 +9,17 @@ namespace inmobiliaria.Controllers
     {
         private readonly IRepositorioPago repositorioPago;
         private readonly IRepositorioContrato repositorioContrato;
+        private readonly IRepositorioInquilino repositorioInquilino;
 
-        public PagosController(IRepositorioPago repositorioPago, IRepositorioContrato repositorioContrato)
+
+        public PagosController(IRepositorioPago repositorioPago, IRepositorioContrato repositorioContrato, IRepositorioInquilino repositorioInquilino)
         {
             this.repositorioPago = repositorioPago;
             this.repositorioContrato = repositorioContrato;
+            this.repositorioInquilino = repositorioInquilino;
         }
-         
-         public IActionResult Index()
+
+        public IActionResult Index(int? idInquilino)
         {
             try
             {
@@ -27,6 +30,11 @@ namespace inmobiliaria.Controllers
                     ViewBag.Id = TempData["Id"];
                 if (TempData.ContainsKey("Error"))
                     ViewBag.Error = TempData["Error"];
+                if (idInquilino != null)
+                {
+                    Inquilino inquilino = repositorioInquilino.BuscarPorId(idInquilino.Value);
+                    ViewBag.Inquilino = inquilino;
+                }
                 IList<Pago> pago = repositorioPago.ListarTodos();
                 return View(pago);
 
@@ -46,26 +54,51 @@ namespace inmobiliaria.Controllers
                 return View(new List<Pago>());
             }
         }
-        
-        public IActionResult Formulario(int id)
+
+        public IActionResult Formulario(int idContrato)
         {
 
             try
             {
 
-                IList<Contrato> contrato = repositorioContrato.ListarTodos();
+                Contrato contrato = repositorioContrato.BuscarPorId(idContrato);
                 ViewBag.Contrato = contrato;
 
-                if (id == 0)
+                if (idContrato == 0)
                 {
-                    return View();
+                    ViewBag.Error = "Error al cargar la vista de pago";
+                    return View(nameof(Index));
                 }
                 else
                 {
-                    Pago pago = repositorioPago.BuscarPorId(id);
+                    int numeroPago = repositorioPago.ObtenerUltimoNumeroPago(idContrato);
+                    numeroPago = numeroPago == -1 ? 0 : numeroPago;
+                    numeroPago++;
+                    Pago pago = new Pago
+                    {
+                        NumeroPago = numeroPago.ToString(),
+                        IdContrato = idContrato
+                    };
+                    if (TempData["DesdeMulta"] != null)
+                    {
+                    Pago ultimoPago = repositorioPago.BuscarUltimoPago(idContrato);
+                    DateOnly fechaUltimoPago = ultimoPago.CorrespondeAMes.Value;
+
+                    int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
+                    int mesesPagados = repositorioPago.ContarPagosMensuales(idContrato);
+
+                    int mesesImpagos = mesesTotales - mesesPagados;
+                    decimal total = Decimal.Parse((String)TempData["Multa"]) + (int)TempData["MesesImpagos"] * contrato.Monto;
+
+
+                        pago.Monto = total;
+                        pago.Concepto = "Multa";
+                    };
+
+                        
                     return View(pago);
+                    }
                 }
-            }
 
 
             catch (MySqlException ex)
@@ -73,14 +106,14 @@ namespace inmobiliaria.Controllers
                 ViewBag.Error = "Ocurrió un error al recuperar los datos!";
                 Console.WriteLine(ex.ToString());
 
-                return View();
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception e)
             {
                 ViewBag.Error = "Ocurrió un error inesperado";
                 Console.WriteLine(e.ToString());
 
-                return View();
+                return RedirectToAction(nameof(Index));
             }
         }
 
@@ -90,15 +123,15 @@ namespace inmobiliaria.Controllers
         [HttpPost]
         public IActionResult Guardar(Pago pago)
         {
-             if (!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-            ViewBag.Error = "Los datos ingresados no son válidos";
-            return View(nameof(Formulario), pago);
+                ViewBag.Error = "Los datos ingresados no son válidos";
+                return View(nameof(Formulario), pago);
             }
-          
+
             try
             {
-                if (pago.Id == 0)
+                if (pago.Id == null)
                 {
                     repositorioPago.Alta(pago);
                     TempData["Accion"] = Accion.Alta.value;
@@ -126,7 +159,7 @@ namespace inmobiliaria.Controllers
                 return View(nameof(Formulario), pago);
             }
 
-           
+
         }
 
         public IActionResult Eliminar(int id)
@@ -137,7 +170,7 @@ namespace inmobiliaria.Controllers
                 TempData["Accion"] = Accion.Baja.value;
                 TempData["Id"] = id;
                 return RedirectToAction(nameof(Index));
-            
+
             }
             catch (MySqlException ex)
             {
@@ -154,7 +187,7 @@ namespace inmobiliaria.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-           
+
         }
 
         public IActionResult Reactivar(int id)
@@ -179,9 +212,44 @@ namespace inmobiliaria.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            
 
-            
+
+
+        }
+
+        [HttpGet("Pagos/Ultimo/{idContrato}")]
+        public IActionResult Ultimo(int idContrato)
+        {
+
+            Pago ultimoPago = repositorioPago.BuscarUltimoPago(idContrato);
+            return Ok(ultimoPago);
+        }
+
+        public IActionResult Listar(int? idInquilino)
+        {
+            try
+            {
+                IList<Pago> pagos = new List<Pago>();
+                if (idInquilino == null)
+                {
+                    pagos = repositorioPago.ListarTodos();
+                }
+                else
+                {
+                    pagos = repositorioPago.ListarPorInquilino(idInquilino.Value);
+                }
+                return Ok(pagos);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return StatusCode(500, "Error en la base de datos");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return StatusCode(500, "Error general");
+            }
         }
     }
 }

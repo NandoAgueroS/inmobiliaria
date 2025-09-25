@@ -15,7 +15,7 @@ namespace inmobiliaria.Controllers
             this.repositorioInmueble = repositorioInmueble;
             this.repositorioTipo = repositorioTipo;
         }
-        public IActionResult Index()
+        public IActionResult Index(bool soloLibres, bool soloDisponibles)
         {
             try
             {
@@ -26,8 +26,8 @@ namespace inmobiliaria.Controllers
                     ViewBag.Id = TempData["Id"];
                 if (TempData.ContainsKey("Error"))
                     ViewBag.Error = TempData["Error"];
-                IList<Inmueble> inmuebles = repositorioInmueble.ListarTodos();
-                return View(inmuebles);
+                // IList<Inmueble> inmuebles = repositorioInmueble.ListarTodos();
+                return View();
 
             }
             catch (MySqlException ex)
@@ -35,28 +35,28 @@ namespace inmobiliaria.Controllers
                 ViewBag.Error = "Ocurrió un error al recuperar los datos!";
                 Console.WriteLine(ex.ToString());
 
-                return View(new List<Inmueble>());
+                return View();
             }
             catch (Exception e)
             {
                 ViewBag.Error = "Ocurrió un error inesperado";
                 Console.WriteLine(e.ToString());
 
-                return View(new List<Inmueble>());
+                return View();
             }
         }
 
 
-        
+
         public IActionResult Formulario(int id)
         {
 
-                try
-                {
+            try
+            {
 
-                    IList<Tipo> tipos = repositorioTipo.ListarTodos();
-                    ViewBag.Tipos = tipos;
-                    
+                IList<Tipo> tipos = repositorioTipo.ListarTodos();
+                ViewBag.Tipos = tipos;
+
                 if (id == 0)
                 {
                     return View();
@@ -65,24 +65,25 @@ namespace inmobiliaria.Controllers
                 {
                     Inmueble inmueble = repositorioInmueble.BuscarPorId(id);
                     return View(inmueble);
-                }    }
-
-
-                catch (MySqlException ex)
-                {
-                    ViewBag.Error = "Ocurrió un error al recuperar los datos!";
-                    Console.WriteLine(ex.ToString());
-
-                    return View();
-                }
-                catch (Exception e)
-                {
-                    ViewBag.Error = "Ocurrió un error inesperado";
-                    Console.WriteLine(e.ToString());
-
-                    return View();
                 }
             }
+
+
+            catch (MySqlException ex)
+            {
+                ViewBag.Error = "Ocurrió un error al recuperar los datos!";
+                Console.WriteLine(ex.ToString());
+
+                return View();
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = "Ocurrió un error inesperado";
+                Console.WriteLine(e.ToString());
+
+                return View();
+            }
+        }
 
 
 
@@ -92,10 +93,10 @@ namespace inmobiliaria.Controllers
         {
             if (!ModelState.IsValid)
             {
-            ViewBag.Error = "Los datos ingresados no son válidos";
-            return View(nameof(Formulario), inmueble);
+                ViewBag.Error = "Los datos ingresados no son válidos";
+                return View(nameof(Formulario), inmueble);
             }
-          
+
             try
             {
                 if (inmueble.Id == null)
@@ -126,7 +127,7 @@ namespace inmobiliaria.Controllers
                 return View(nameof(Formulario), inmueble);
             }
 
-           
+
         }
 
         public IActionResult Eliminar(int id)
@@ -137,7 +138,7 @@ namespace inmobiliaria.Controllers
                 TempData["Accion"] = Accion.Baja.value;
                 TempData["Id"] = id;
                 return RedirectToAction(nameof(Index));
-            
+
             }
             catch (MySqlException ex)
             {
@@ -154,7 +155,7 @@ namespace inmobiliaria.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-           
+
         }
 
         public IActionResult Reactivar(int id)
@@ -179,38 +180,38 @@ namespace inmobiliaria.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            
 
-            
+
+
         }
         public IActionResult Buscar(string direccion)
         {
             try
             {
                 IList<Inmueble> inmuebles = repositorioInmueble.BuscarPorDireccion(direccion);
-                return Json(inmuebles);
+                return Ok(inmuebles);
             }
             catch (MySqlException ex)
             {
                 Console.WriteLine(ex.ToString());
 
-                return StatusCode(500,"Error en la base de datos");
+                return StatusCode(500, "Error en la base de datos");
             }
             catch (Exception e)
             {
-             Console.WriteLine(e.ToString());
+                Console.WriteLine(e.ToString());
 
                 return StatusCode(500, "Error general");
             }
-            
-        
-    }
+
+
+        }
         public IActionResult BuscarPorId(int id)
         {
             try
             {
                 Inmueble inmueble = repositorioInmueble.BuscarPorId(id);
-                return Json(inmueble);
+                return Ok(inmueble);
             }
             catch (MySqlException ex)
             {
@@ -225,13 +226,50 @@ namespace inmobiliaria.Controllers
                 return StatusCode(500, "Error general");
             }
         }
+
+        public IActionResult Listar(bool? disponibles, DateOnly? fechaDesde, DateOnly? fechaHasta)
+        {
+            try
+            {
+                IList<Inmueble> inmuebles = new List<Inmueble>();
+                if (disponibles == null)
+                {
+                    inmuebles = repositorioInmueble.ListarTodos();
+                }
+                else if (fechaDesde != null && fechaHasta != null)
+                {
+                    inmuebles = repositorioInmueble.ListarDesocupados(fechaDesde.Value, fechaHasta.Value, disponibles.Value);
+                }
+                else
+                {
+                    inmuebles = repositorioInmueble.ListarPorDisponible(disponibles.Value);
+                }
+                return Ok(inmuebles);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return StatusCode(500, "Error en la base de datos");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return StatusCode(500, "Error general");
+            }
+        }
+        [HttpGet("/Inmuebles/Desocupado/{id}/{fechaDesde}/{fechaHasta}")]
+        public IActionResult Desocupado(int id, DateOnly fechaDesde, DateOnly fechaHasta)
+        {
+            return Json(repositorioInmueble.VerificarDesocupado(fechaDesde, fechaHasta, id));
+        }
+
         [HttpPost]
         public IActionResult AltaTipo([FromBody] Tipo tipo)
         {
             try
             {
                 repositorioTipo.Alta(tipo);
-                return Created(); 
+                return Created();
             }
             catch (MySqlException ex)
             {

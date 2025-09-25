@@ -9,9 +9,14 @@ namespace inmobiliaria.Controllers
     {
 
         private readonly IRepositorioContrato repositorioContrato;
-        public ContratosController(IRepositorioContrato repositorioContrato)
+        private readonly IRepositorioPago repositorioPago;
+        private readonly IRepositorioInmueble repositorioInmueble;
+
+        public ContratosController(IRepositorioContrato repositorioContrato, IRepositorioPago repositorioPago, IRepositorioInmueble repositorioInmueble)
         {
             this.repositorioContrato = repositorioContrato;
+            this.repositorioPago = repositorioPago;
+            this.repositorioInmueble = repositorioInmueble;
         }
 
         public IActionResult Index()
@@ -83,19 +88,33 @@ namespace inmobiliaria.Controllers
             }
             try
             {
-
-                if (contrato.Id == null)
+                bool inmuebleDesocupado = repositorioInmueble.VerificarDesocupado(contrato.FechaDesde, contrato.FechaHasta, contrato.IdInmueble);
+                bool inmuebleDisponible = repositorioInmueble.VerificarDisponible(contrato.IdInmueble);
+                if (inmuebleDesocupado && inmuebleDisponible)
                 {
-                    repositorioContrato.Alta(contrato);
-                    TempData["Accion"] = Accion.Alta.value;
+                    if (contrato.Id == null)
+                    {
+                        repositorioContrato.Alta(contrato);
+                        TempData["Accion"] = Accion.Alta.value;
+                    }
+                    else
+                    {
+                        repositorioContrato.Modificacion(contrato);
+                        TempData["Accion"] = Accion.Modificacion.value;
+                    }
+
+                    return RedirectToAction(nameof(Index));
+                }
+                else if (!inmuebleDesocupado && inmuebleDisponible)
+                {
+                    ViewBag.Error = "El inmueble se encuentra ocupado en el periodo seleccionado";
+                    return View(nameof(Formulario), contrato);
                 }
                 else
                 {
-                    repositorioContrato.Modificacion(contrato);
-                    TempData["Accion"] = Accion.Modificacion.value;
+                    ViewBag.Error = "El inmueble no se encuentra disponible";
+                    return View(nameof(Formulario), contrato);
                 }
-
-                return RedirectToAction(nameof(Index));
             }
             catch (MySqlException ex)
             {
@@ -111,15 +130,63 @@ namespace inmobiliaria.Controllers
             }
         }
 
-        
 
+        public IActionResult CancelarModal(int id)
+        {
+            Contrato contrato = repositorioContrato.BuscarPorId(id);
+            Pago ultimoPago = repositorioPago.BuscarUltimoPago(id);
+
+            int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
+            int mesesPagados = repositorioPago.ContarPagosMensuales(id) > 0 ? repositorioPago.ContarPagosMensuales(id) : 0;
+
+            DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Today);
+            int mesesTranscurridos = (fechaActual.Year - contrato.FechaDesde.Year) * 12 + fechaActual.Month - contrato.FechaDesde.Month;
+            int mesesImpagos = mesesTranscurridos - mesesPagados;
+            mesesImpagos = mesesPagados < 0 ? 0 : mesesPagados;
+            int mesesRestantes = (contrato.FechaHasta.Year - fechaActual.Year) * 12 + contrato.FechaHasta.Month - fechaActual.Month;
+            decimal multa;
+            if ((mesesTotales / 2) < mesesRestantes)
+            {
+                multa = contrato.Monto * 2;
+            }
+            else
+            {
+                multa = contrato.Monto;
+            }
+            /*mete todos los datos en view bags*/
+            ViewBag.IdContrato = id;
+            // ViewBag.Multa = multa;
+            TempData["Multa"] = multa.ToString();
+            ViewBag.MesesImpagos = mesesImpagos;
+            TempData["MesesImpagos"] = mesesImpagos;
+            TempData["DesdeMulta"] = true;
+            ViewBag.MesesRestantes = mesesRestantes;
+            ViewBag.MesesTotales = mesesTotales;
+            ViewBag.MesesTranscurridos = mesesTranscurridos;
+
+            return View();
+        }
         public IActionResult Eliminar(int id)
         {
             try
             {
+                Pago ultimoPago = repositorioPago.BuscarUltimoPago(id);
+                if (ultimoPago != null && ultimoPago.Contrato != null && ultimoPago.CorrespondeAMes != null)
+                {
+                    Contrato contrato = ultimoPago.Contrato;
+
+                    DateOnly fechaUltimoPago = ultimoPago.CorrespondeAMes.Value;
+                    int mesesRestantes = ((contrato.FechaHasta.Year - fechaUltimoPago.Year) * 12 + contrato.FechaHasta.Month - fechaUltimoPago.Month);
+                    if (fechaUltimoPago.Month != DateOnly.FromDateTime(DateTime.Today).Month
+                        && fechaUltimoPago.Year != DateOnly.FromDateTime(DateTime.Today).Year)
+                    {
+                        TempData["Error"] = "No se puede cancelar el contrato, tiene pagos pendientes";
+                    }
+                }
                 repositorioContrato.Baja(id);
                 TempData["Accion"] = Accion.Baja.value;
                 TempData["Id"] = id;
+
 
                 return RedirectToAction(nameof(Index));
             }
@@ -162,6 +229,35 @@ namespace inmobiliaria.Controllers
 
                 return StatusCode(500, "Error general");
             }
+        }
+        public IActionResult RenovarModal(int id)
+        {
+            if (id == 0)
+                return View(nameof(Index));
+            Contrato contratoOriginal = repositorioContrato.BuscarPorId(id);
+            RenovarContratoDTO contratoDTO = new RenovarContratoDTO
+            {
+                IdOriginal = contratoOriginal.Id.Value,
+                FechaDesde = contratoOriginal.FechaDesde,
+                FechaHasta = contratoOriginal.FechaHasta,
+                NuevoMonto = contratoOriginal.Monto
+            };
+            ViewBag.IdInmueble = contratoOriginal.IdInmueble;
+            return View(contratoDTO);
+        }
+        public IActionResult Renovar(RenovarContratoDTO contratoDTO)
+        {
+            Contrato contratoARenovar = repositorioContrato.BuscarPorId(contratoDTO.IdOriginal);
+            contratoARenovar.Monto = contratoDTO.NuevoMonto;
+            contratoARenovar.FechaDesde = contratoDTO.FechaDesde;
+            contratoARenovar.FechaHasta = contratoDTO.FechaHasta;
+
+            if (repositorioInmueble.VerificarDesocupado(contratoARenovar.FechaDesde, contratoARenovar.FechaHasta, contratoARenovar.IdInmueble))
+                repositorioContrato.Alta(contratoARenovar);
+            else
+                TempData["Error"] = "El inmueble se encuentra ocupado en el periodo seleccionado";
+            return RedirectToAction(nameof(Index));
+
         }
     }
 }

@@ -110,7 +110,7 @@ namespace inmobiliaria.Repositories
                     }
                     connection.Close();
                 }
-                
+
             }
             return res;
         }
@@ -198,16 +198,16 @@ namespace inmobiliaria.Repositories
 
         public IList<Inmueble> BuscarPorPropietario(int id)
         {
-           IList<Inmueble> res = new List<Inmueble>();
- 
+            IList<Inmueble> res = new List<Inmueble>();
+
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
 
-                
+
                 string query = $@"SELECT * FROM Inmuebles WHERE IdPropietario = @Id;";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                     command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@Id", id);
                     connection.Open();
                     var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -240,7 +240,7 @@ namespace inmobiliaria.Repositories
                 string query = $@"SELECT * FROM Inmuebles WHERE direccion LIKE @Direccion;";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                     command.Parameters.AddWithValue("@Direccion", $"%{direccion}%");
+                    command.Parameters.AddWithValue("@Direccion", $"%{direccion}%");
                     connection.Open();
                     var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -257,11 +257,11 @@ namespace inmobiliaria.Repositories
                             Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
                             Estado = reader.GetBoolean(nameof(Inmueble.Estado))
                         });
-                
+
                     }
                     connection.Close();
                 }
-                
+
             }
             return res;
         }
@@ -285,7 +285,172 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
-        
+
+        public IList<Inmueble> ListarPorDisponible(bool disponibles)
+        {
+            IList<Inmueble> res = new List<Inmueble>();
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM Inmuebles WHERE Estado = true && Disponible = @Disponible;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("Disponible", disponibles);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Inmueble
+                        {
+                            Id = reader.GetInt32("IdInmueble"),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            Uso = reader.GetString(nameof(Inmueble.Uso)),
+                            Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                            Estado = reader.GetBoolean(nameof(Inmueble.Estado))
+                        });
+                    }
+                    connection.Close();
+                }
+
+            }
+            return res;
+
+        }
+
+        public IList<Inmueble> ListarDesocupados(DateOnly fechaDesde, DateOnly fechaHasta, bool disponible)
+        {
+            IList<Inmueble> res = new List<Inmueble>();
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"
+                SELECT i.*, t.*, p.*
+                FROM Inmuebles i
+                JOIN Tipos t ON i.IdTipo = t.IdTipo
+                JOIN Propietarios p ON i.IdPropietario = p.IdPropietario
+                LEFT JOIN Contratos c
+                ON c.IdInmueble = i.IdInmueble
+                AND c.Estado = 1
+                AND i.Disponible = @Disponible
+                AND c.FechaDesde <= @FechaHasta
+                AND c.FechaHasta  >= @FechaDesde
+                WHERE i.Estado = 1
+                AND c.IdContrato IS NULL;
+                ;
+                ";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.Parameters.AddWithValue("@FechaDesde", fechaDesde.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@FechaHasta", fechaHasta.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@Disponible", disponible);
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Inmueble
+                        {
+                            Id = reader.GetInt32("IdInmueble"),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            Uso = reader.GetString(nameof(Inmueble.Uso)),
+                            Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                            Estado = reader.GetBoolean(nameof(Inmueble.Estado)),
+                            Propietario = new Propietario
+                            {
+                                Id = reader.GetInt32("IdPropietario"),
+                                Nombre = reader.GetString(nameof(Propietario.Nombre)),
+                                Apellido = reader.GetString(nameof(Propietario.Apellido)),
+                                Dni = reader.GetString(nameof(Propietario.Dni)),
+                                Telefono = reader.GetString(nameof(Propietario.Telefono)),
+                                Email = reader.GetString(nameof(Propietario.Email)),
+                                Direccion = reader.GetString(nameof(Propietario.Direccion))
+                            },
+
+                            Tipo = new Tipo
+                            {
+                                Id = reader.GetInt32("IdTipo"),
+                                Descripcion = reader.GetString(nameof(Tipo.Descripcion)),
+                            }
+                        });
+                    }
+                    connection.Close();
+                }
+
+            }
+            return res;
+        }
+        public bool VerificarDesocupado(DateOnly fechaDesde, DateOnly fechaHasta, int id)
+        {
+            bool res = false;
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"
+                SELECT i.*, t.*, p.*
+                FROM Inmuebles i
+                JOIN Tipos t ON i.IdTipo = t.IdTipo
+                JOIN Propietarios p ON i.IdPropietario = p.IdPropietario
+                LEFT JOIN Contratos c
+                ON c.IdInmueble = i.IdInmueble
+                AND c.Estado = 1
+                AND c.FechaDesde <= @FechaHasta
+                AND c.FechaHasta  >= @FechaDesde
+                WHERE i.Estado = 1
+                AND c.IdContrato IS NULL
+                AND i.IdInmueble = @Id;
+                ";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.Parameters.AddWithValue("@FechaDesde", fechaDesde.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@FechaHasta", fechaHasta.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@Id", id);
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                        res = true;
+                }
+                connection.Close();
+            }
+            return res;
+
+        }
+        public bool VerificarDisponible(int id)
+        {
+            bool res = false;
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"
+                SELECT * 
+                FROM Inmuebles i
+                WHERE i.Estado = 1
+                AND i.Disponible = 1
+                AND i.IdInmueble = @Id;
+                ";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.Parameters.AddWithValue("@Id", id);
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                        res = true;
+                }
+                connection.Close();
+            }
+            return res;
+
+        }
     }
 
 
