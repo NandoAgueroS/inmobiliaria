@@ -29,20 +29,25 @@ namespace inmobiliaria.Controllers
             this.environment = environment;
         }
 
-
+        public IActionResult PerfilUsuario()
+        {
+           Usuario usuario= repositorioUsuario.BuscarPorId(8);
+            return View(usuario);
+        }
      
        /// [Authorize(Policy = "Administrador")]
        
-        public ActionResult Index()
+        public IActionResult Index()
         {
             var usuarios = repositorioUsuario.ListarTodos();
             return View(usuarios);
         }
+    
 
       
        /// [Authorize(Policy = "Administrador")]
-       
-        public ActionResult Detalles(int id)
+
+        public IActionResult Detalles(int id)
         {
             var usuario = repositorioUsuario.BuscarPorId(id);
             return View(usuario);
@@ -53,7 +58,7 @@ namespace inmobiliaria.Controllers
        
 
        /////////////// [Authorize(Policy = "Adminitrador")]
-        public ActionResult Guardar(Usuario usuario)
+        public IActionResult Guardar(Usuario usuario)
         {
             if (!ModelState.IsValid)
                 return View(nameof(Formulario),usuario);
@@ -67,7 +72,7 @@ namespace inmobiliaria.Controllers
                                    numBytesRequested: 256 / 8));
 
                 usuario.Clave = contraHash;
-                usuario.Rol = /*User.IsInRole("Administrador") ? usuario.Rol : */(int)enRoles.Empleado;
+                usuario.Rol = User.IsInRole("Administrador") ? usuario.Rol : (int)enRoles.Empleado;
                 var identificador = Guid.NewGuid();
                 int res = repositorioUsuario.Alta(usuario);
                 if (usuario.AvatarFile != null && usuario.Id > 0)
@@ -103,7 +108,7 @@ namespace inmobiliaria.Controllers
 
 
         [Authorize]
-        public ActionResult Perfil()
+        public IActionResult Perfil()
         {
             var usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
             ViewBag.Roles = Usuario.ObtenerRoles();
@@ -112,7 +117,7 @@ namespace inmobiliaria.Controllers
 
 
        ////// [Authorize(Policy = "Administrador")]
-        public ActionResult Formulario(int id)
+        public IActionResult Formulario(int id)
         {
             ViewBag.Roles = Usuario.ObtenerRoles();
             if(id==0)
@@ -129,7 +134,7 @@ namespace inmobiliaria.Controllers
 
         [HttpPost]
         [Authorize(Policy = "Administrador")]
-        public ActionResult Eliminar(int id, Usuario usuario)
+        public IActionResult Eliminar(int id, Usuario usuario)
         {
             try
             {

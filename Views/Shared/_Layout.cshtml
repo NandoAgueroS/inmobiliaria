@@ -1,4 +1,5 @@
 ﻿@using System.Collections
+@using System.Security.Claims
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,6 +47,22 @@
                         </li>
  
                     </ul>
+                      @*if (!string.IsNullOrEmpty(Model.Avatar))
+                        {
+                            <img src="@Model.Avatar" alt="Avatar" class="rounded-circle img-fluid" style="width: 120px; height: 120px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center text-white" style="width: 120px; height: 120px; font-size: 3rem;">
+                                @Model.Nombre?.Substring(0, 1).ToUpper()@Model.Apellido?.Substring(0, 1).ToUpper()
+                            </div>
+                        *}*@
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">Email</label>
+                            @if (User.Identity.IsAuthenticated){
+                                <p class="fs-5">User.Identity.FullName</p>
+                            }
+                        </div>
                 </div>
             </div>
         </nav>

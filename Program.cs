@@ -18,6 +18,7 @@ builder.Services.AddScoped<IRepositorioTipo, RepositorioTipo>();
 builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
 builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+builder.Services.AddScoped<IRepositorioPago, RepositorioPago>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>//el sitio web valida con cookie
@@ -29,7 +30,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 builder.Services.AddAuthorization(options =>
 {
-	options.AddPolicy("Empleado", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador", "Empleado"));
+	options.AddPolicy("Administrador", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador"));
 	
 });
 
