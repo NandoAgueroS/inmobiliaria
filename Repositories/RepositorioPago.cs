@@ -301,6 +301,7 @@ namespace inmobiliaria.Repositories
                             Monto = reader.GetDecimal(nameof(Pago.Monto)),
                             Fecha = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.Fecha))),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                            CorrespondeAMes = reader.IsDBNull(reader.GetOrdinal(nameof(Pago.CorrespondeAMes))) ? null : DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.CorrespondeAMes))),
                             Estado = reader.GetBoolean(nameof(Pago.Estado)),
                             CreadoPor = reader.GetInt32(nameof(Pago.CreadoPor)),
                             AnuladoPor = reader.IsDBNull(reader.GetOrdinal(nameof(Pago.AnuladoPor))) ? null : reader.GetInt32(nameof(Pago.AnuladoPor)),
