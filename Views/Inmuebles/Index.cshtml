@@ -18,7 +18,7 @@
     </div>
     <div class="d-flex flex-row">
     <select id="select-filtros">
-      <option value=1>Disponbles</option>
+      <option selected value=1>Disponbles</option>
       <option value=2>No disponibles</option>
       <option value=3>Disponbles por fecha</option>
     </select>
@@ -187,6 +187,7 @@ let url = "/Inmuebles/Listar";
       })
       .catch(error => console.error(error))
     }
+    filtrar();
 function cargarInmuebles(inmuebles) {
     const inmueblesContainer = document.getElementById('inmuebles-container');
       inmueblesContainer.innerHTML = '';

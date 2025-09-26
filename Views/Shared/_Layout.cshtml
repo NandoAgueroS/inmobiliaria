@@ -21,7 +21,10 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+          
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+    @if (User?.Identity?.IsAuthenticated == true)
+          {
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Inquilinos" asp-action="Index">Inquilinos</a>
@@ -32,21 +35,18 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Propietarios" asp-action="Index">Propietarios</a>
                         </li>
-                        <li class="nav-item"></li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Inmuebles" asp-action="Index">Inmuebles</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuario</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Pagos" asp-action="Index">Pagos</a>
+                        </li>
  
                     </ul>
+            }
 <div class="col-md-6 mb-3">
 
     @if (User?.Identity?.IsAuthenticated == true)
@@ -63,9 +63,9 @@
         <img src="@(avatarUrl)" alt="Avatar" class="rounded-circle img-fluid"
              style="width: 120px; height: 120px; object-fit: cover;">
              </a>
+            <a asp-controller="Usuarios" asp-action="Logout" class="btn btn-danger">Salir</a>
               }
 </div>
-            <a asp-controller="Usuarios" asp-action="Logout" class="btn btn-danger">Salir</a>
             </div>
         </nav>
     </header>

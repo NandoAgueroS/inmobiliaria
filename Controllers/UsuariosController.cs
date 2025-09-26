@@ -298,6 +298,17 @@ namespace inmobiliaria.Controllers
 
 
 
+        public ActionResult EliminarAvatar(int id)
+        {
+            var ruta = Path.Combine(environment.WebRootPath, "uploads", $"avatar_{id}" + Path.GetExtension(User.FindFirst("Avatar").Value));
+            if (System.IO.File.Exists(ruta))
+                System.IO.File.Delete(ruta);
+            Usuario usuario = repositorioUsuario.BuscarPorId(id);
+            usuario.Avatar = "";
+            repositorioUsuario.Modificacion(usuario);
+
+                return RedirectToAction(nameof(Index));
+        }
         [Authorize(Policy = "Administrador")]
         public IActionResult Eliminar(int id)
         {
