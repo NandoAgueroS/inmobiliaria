@@ -1,10 +1,12 @@
 using inmobiliaria.Models;
 using inmobiliaria.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 
 namespace inmobiliaria.Controllers
 {
+    [Authorize]
     public class ContratosController : Controller
     {
 
@@ -19,6 +21,7 @@ namespace inmobiliaria.Controllers
             this.repositorioInmueble = repositorioInmueble;
         }
 
+
         public IActionResult Index()
         {
             ViewBag.ControllerName = "contratos";
@@ -28,27 +31,10 @@ namespace inmobiliaria.Controllers
                 ViewBag.Id = TempData["Id"];
             if (TempData.ContainsKey("Error"))
                 ViewBag.Error = TempData["Error"];
-            try
-            {
-                IList<Contrato> contratos = repositorioContrato.ListarTodos();
-                return View(contratos);
-            }
-            catch (MySqlException ex)
-            {
-                ViewBag.Error = "Ocurrió un error al recuperar los contratos";
 
-                Console.WriteLine(ex.ToString());
-
-                return View(new List<Contrato>());
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = "Ocurrió un error inesperado";
-                Console.WriteLine(ex.ToString());
-                return View(new List<Contrato>());
-            }
-
+            return View();
         }
+
 
         public IActionResult Formulario(int id)
         {
@@ -166,6 +152,8 @@ namespace inmobiliaria.Controllers
 
             return View();
         }
+
+        [Authorize(Policy = "Administrador")]
         public IActionResult Eliminar(int id)
         {
             try
@@ -203,12 +191,13 @@ namespace inmobiliaria.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
-
+        [Authorize(Policy = "Administrador")]
         public IActionResult Reactivar(int id)
         {
             repositorioContrato.Reactivar(id);
             return RedirectToAction(nameof(Index));
         }
+
 
         public IActionResult BuscarPorId(int id)
         {
@@ -230,6 +219,7 @@ namespace inmobiliaria.Controllers
                 return StatusCode(500, "Error general");
             }
         }
+
         public IActionResult RenovarModal(int id)
         {
             if (id == 0)
@@ -245,6 +235,7 @@ namespace inmobiliaria.Controllers
             ViewBag.IdInmueble = contratoOriginal.IdInmueble;
             return View(contratoDTO);
         }
+
         public IActionResult Renovar(RenovarContratoDTO contratoDTO)
         {
             Contrato contratoARenovar = repositorioContrato.BuscarPorId(contratoDTO.IdOriginal);
@@ -259,5 +250,40 @@ namespace inmobiliaria.Controllers
             return RedirectToAction(nameof(Index));
 
         }
-    }
+
+        public IActionResult DataTable(int? idInmueble)
+        {
+
+
+            try
+            {
+                if (idInmueble == null)
+                {
+
+                    IList<Contrato> contratos = repositorioContrato.ListarTodos();
+                    return View(contratos);
+                }
+                else
+                {
+                    IList<Contrato> contratos = repositorioContrato.ListarPorInmueble(idInmueble.Value);
+                    return View(contratos);
+                }
+            }
+            catch (MySqlException ex)
+            {
+                ViewBag.Error = "Ocurrió un error al recuperar los contratos";
+
+                Console.WriteLine(ex.ToString());
+
+                return View(new List<Contrato>());
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error inesperado";
+                Console.WriteLine(ex.ToString());
+                return View(new List<Contrato>());
+            }
+            }
+        }
+    
 }

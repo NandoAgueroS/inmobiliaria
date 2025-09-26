@@ -1,10 +1,12 @@
 using inmobiliaria.Models;
 using inmobiliaria.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 
 namespace inmobiliaria.Controllers
 {
+    [Authorize]
     public class PagosController : Controller
     {
         private readonly IRepositorioPago repositorioPago;
@@ -81,24 +83,25 @@ namespace inmobiliaria.Controllers
                     };
                     if (TempData["DesdeMulta"] != null)
                     {
-                    Pago ultimoPago = repositorioPago.BuscarUltimoPago(idContrato);
-                    DateOnly fechaUltimoPago = ultimoPago.CorrespondeAMes.Value;
+                        Pago ultimoPago = repositorioPago.BuscarUltimoPago(idContrato);
+                        DateOnly fechaUltimoPago = ultimoPago.CorrespondeAMes.Value;
 
-                    int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
-                    int mesesPagados = repositorioPago.ContarPagosMensuales(idContrato);
+                        int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
+                        int mesesPagados = repositorioPago.ContarPagosMensuales(idContrato);
 
-                    int mesesImpagos = mesesTotales - mesesPagados;
-                    decimal total = Decimal.Parse((String)TempData["Multa"]) + (int)TempData["MesesImpagos"] * contrato.Monto;
+                        int mesesImpagos = mesesTotales - mesesPagados;
+                        decimal total = Decimal.Parse((String)TempData["Multa"]) + (int)TempData["MesesImpagos"] * contrato.Monto;
 
 
                         pago.Monto = total;
                         pago.Concepto = "Multa";
-                    };
-
-                        
-                    return View(pago);
                     }
+                    ;
+
+
+                    return View(pago);
                 }
+            }
 
 
             catch (MySqlException ex)
@@ -161,7 +164,7 @@ namespace inmobiliaria.Controllers
 
 
         }
-
+        [Authorize(Policy = "Administrador")]
         public IActionResult Eliminar(int id)
         {
             try
@@ -189,7 +192,8 @@ namespace inmobiliaria.Controllers
 
 
         }
-
+        
+        [Authorize(Policy = "Administrador")]
         public IActionResult Reactivar(int id)
         {
             try

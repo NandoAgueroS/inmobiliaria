@@ -1,6 +1,8 @@
+@using inmobiliaria.Models
 @model IEnumerable<inmobiliaria.Models.Inmueble>
 @{
     ViewData["Title"] = "Listado de Inmuebles";
+    Propietario propietario = ViewBag.Propietario;
 }
 
 <div class="text-center">
@@ -15,12 +17,19 @@
   </div>
   <div>
     <div>
+    <select  id="IdPropietario" style="width: 300px;">
+      @if(propietario != null)
+      {
+        <option selected value="@propietario.Id">@propietario.Nombre @propietario.Apellido (@propietario.Dni)</option>
+      }
+    </select>
     </div>
     <div class="d-flex flex-row">
+    
       <label class="form-check">Disponibles</label>
       <input class="form-check-input" type="checkbox" id="filtro-disponibles">
       <label class="form-control">Periodo</label>
-      <label class="form-control">fecha inicio</label>
+      <label class="form-control">fecha inicio</label><br>
       <input class="form-control" type="date" id="filtro-periodo-desde">
       <label class="form-control">fecha desde</label>
       <input class="form-control" type="date" id="filtro-periodo-hasta">
@@ -97,8 +106,37 @@
   </div>
 </div>
 @section Scripts{
+   
+
+
+     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-    function cargarDatos(item){
+    $('#IdPropietario').select2(
+        {
+            placeholder: "Seleccione un propietario",
+            ajax: {
+                url: '/Propietarios/Buscar',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        nombre: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                            results: data.map(element => {
+                            return { id: element.id, text: element.nombre + ' ' + element.apellido}
+                        })
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        }
+    )
+    function cargarModal(item){
 
     const datos = fetch('/Inmuebles/BuscarPorId/' + item)
     .then(response => response.json())
@@ -214,6 +252,34 @@ function cargarInmuebles(inmuebles) {
 document.getElementById('filtro-disponibles').addEventListener('change', () => {
 listar(filtroDisponibles.checked, fechaDesde.value, fechaHasta.value);
       });
-    listar(filtroDisponibles.checked);
+    ///listar(filtroDisponibles.checked);
+
+
+   function cargarContInmueble(id=""){
+            const contenedorInmueble = document.getElementById('inmuebles-container')
+              fetch("/Inmuebles/_CardInmueble?idPropietario="+id)
+              .then(response => response.text())
+              .then(data =>{
+                contenedorInmueble.innerHTML= data
+              
+              })
+              .catch(error=>{
+                console.error(error)
+                toastr.error('Error al cargar los inmuebles');
+              }) 
+              
+
+              
+            }
+            cargarContInmueble(document.getElementById("IdPropietario").value || "" )
+           $("#IdPropietario").on("change",(e)=>
+           {
+             if(e.target.value != "")
+
+             {
+              cargarContInmueble(e.target.value)
+              }
+
+           })
     </script>
     }

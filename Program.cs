@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Security.Claims;
-//using inmmobiliaria.Repositories;
 
 //using Inmmobiliaria.Repositories;
 using inmobiliaria.Repositories;
@@ -21,7 +20,7 @@ builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 builder.Services.AddScoped<IRepositorioPago, RepositorioPago>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>//el sitio web valida con cookie
+    .AddCookie(options =>
     {
         options.LoginPath = "/Usuarios/Login";
         options.LogoutPath = "/Usuarios/Logout";

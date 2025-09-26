@@ -9,61 +9,10 @@
 <div>
     <a class="btn btn-primary" asp-controller="Contratos" asp-action="Formulario">Registrar</a>
 </div>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Inquilino)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Inmueble)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaDesde)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaHasta)
-            </th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Inquilino.Nombre) @Html.DisplayFor(modelItem => item.Inquilino.Apellido)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Inmueble.Direccion)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaDesde)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaHasta)
-                </td>
-                <div class="btn-group" role="group">
-                    <td>
-                        <a class="btn btn-warning" asp-controller="Contratos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
-                        <a class="btn btn-warning" asp-controller="Pagos" asp-action="Formulario" asp-route-id="@item.Id">Crear Pago</a>
-                        <a class="btn btn-danger" asp-controller="Contratos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
-                        <button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
-                          Detalle
-                        </button>
-                        <button type="button" class="btn btn-primary" onclick="cancelarModal(@item.Id)">
-                         Cancelar 
-                        </button>
-                        <button type="button" class="btn btn-primary" onclick="renovarModal(@item.Id)">
-                        Renovar
-                        </button>
-                    </td>
-               </div>
-            </tr>
-        }
-    </tbody>
-</table>
-<div class="modal fade" id="detalle" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+
+        <div id="dataTable" class="text-center" ></div>
+
+        <div class="modal fade" id="detalle" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -199,5 +148,27 @@
            .catch(error => console.error(error))
          }
             })}
+
+
+
+            function cargarTable(){
+            const divTable = document.getElementById('dataTable')
+              fetch("/Contratos/DataTable/")
+              .then(response => response.text())
+              .then(data =>{
+                divTable.innerHTML= data
+              
+              })
+              .catch(error=>{
+                console.error(error)
+                toastr.error('Error al cargar los contratos');
+              }) 
+              
+
+              }
+            }
+            cargarTable()
     </script>
     }
+
+  

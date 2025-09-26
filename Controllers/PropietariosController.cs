@@ -2,11 +2,12 @@ using System.Configuration;
 using System.Diagnostics;
 using inmobiliaria.Models;
 using inmobiliaria.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 
 namespace Inmobiliaria.Controllers;
-
+[Authorize]
 public class PropietariosController : Controller
 {
     private readonly IRepositorioPropietario repositorioPropietario;
@@ -123,54 +124,56 @@ public class PropietariosController : Controller
 
     }
     
+    [Authorize(Policy = "Administrador")]
     public IActionResult Eliminar(int id)
     {
         try
-            {
+        {
             repositorioPropietario.Baja(id);
             TempData["Accion"] = Accion.Baja.value;
-                TempData["Id"] = id;
+            TempData["Id"] = id;
             return RedirectToAction(nameof(Index));
-            }
-            catch (MySqlException ex)
-            {
-             ViewBag.Error = "Ocurrió un error al recuperar los datos!";
-                Console.WriteLine(ex.ToString());
+        }
+        catch (MySqlException ex)
+        {
+            ViewBag.Error = "Ocurrió un error al recuperar los datos!";
+            Console.WriteLine(ex.ToString());
 
             return RedirectToAction(nameof(Index));
-            }
-            catch (Exception e)
-            {
-               ViewBag.Error = "Ocurrió un error inesperado";
-                Console.WriteLine(e.ToString());
+        }
+        catch (Exception e)
+        {
+            ViewBag.Error = "Ocurrió un error inesperado";
+            Console.WriteLine(e.ToString());
 
-            return RedirectToAction(nameof(Index)); 
-            }
+            return RedirectToAction(nameof(Index));
+        }
      ;
     }
     
+    [Authorize(Policy = "Administrador")]
     public IActionResult Reactivar(int id)
     {
         try
-            {
-              repositorioPropietario.Reactivar(id);
-              return RedirectToAction(nameof(Index));
-            }
-            catch (MySqlException ex)
-            {
-             ViewBag.Error = "Ocurrió un error al recuperar los datos!";
-                Console.WriteLine(ex.ToString());
+        {
+            repositorioPropietario.Reactivar(id);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (MySqlException ex)
+        {
+            ViewBag.Error = "Ocurrió un error al recuperar los datos!";
+            Console.WriteLine(ex.ToString());
 
             return RedirectToAction(nameof(Index));
-            }
-            catch (Exception e)
-            {
-               ViewBag.Error = "Ocurrió un error inesperado";
-                Console.WriteLine(e.ToString());
+        }
+        catch (Exception e)
+        {
+            ViewBag.Error = "Ocurrió un error inesperado";
+            Console.WriteLine(e.ToString());
 
-                return RedirectToAction(nameof(Index));
-            }
-        
+            return RedirectToAction(nameof(Index));
+        }
+
     }
     public IActionResult Buscar(string nombre)
     {

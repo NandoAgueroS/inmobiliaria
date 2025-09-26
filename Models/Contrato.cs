@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inmobiliaria.Models
 {
+    
     public class Contrato
     {
         public int? Id { get; set; }

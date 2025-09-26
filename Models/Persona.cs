@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace inmobiliaria.Models
 {
+    
     public class Persona
     {
 

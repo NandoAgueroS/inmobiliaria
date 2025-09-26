@@ -1,21 +1,26 @@
 using inmobiliaria.Models;
 using inmobiliaria.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 
 namespace inmobiliaria.Controllers
 {
+    [Authorize]
     public class InmueblesController : Controller
     {
         private readonly IRepositorioInmueble repositorioInmueble;
         private readonly IRepositorioTipo repositorioTipo;
-        public InmueblesController(IRepositorioInmueble repositorioInmueble, IRepositorioTipo repositorioTipo)
+        private readonly IRepositorioPropietario repositorioPropietario;
+        
+        public InmueblesController(IRepositorioInmueble repositorioInmueble, IRepositorioTipo repositorioTipo, IRepositorioPropietario repositorioPropietario)
         {
+            this.repositorioPropietario = repositorioPropietario;
             this.repositorioInmueble = repositorioInmueble;
             this.repositorioTipo = repositorioTipo;
         }
-        public IActionResult Index(bool soloLibres, bool soloDisponibles)
+        public IActionResult Index(int idPropietario)
         {
             try
             {
@@ -26,7 +31,13 @@ namespace inmobiliaria.Controllers
                     ViewBag.Id = TempData["Id"];
                 if (TempData.ContainsKey("Error"))
                     ViewBag.Error = TempData["Error"];
-                // IList<Inmueble> inmuebles = repositorioInmueble.ListarTodos();
+                if (idPropietario != 0)
+                {
+                    Propietario propietario = repositorioPropietario.BuscarPorId(idPropietario);
+                    ViewBag.Propietario = propietario;
+                    
+                    }
+                
                 return View();
 
             }
@@ -81,7 +92,7 @@ namespace inmobiliaria.Controllers
                 ViewBag.Error = "Ocurrió un error inesperado";
                 Console.WriteLine(e.ToString());
 
-                return View();
+                return PartialView();
             }
         }
 
@@ -117,19 +128,19 @@ namespace inmobiliaria.Controllers
                 ViewBag.Error = "Ocurrió un error al guardar!";
                 Console.WriteLine(ex.ToString());
 
-                return View(nameof(Formulario), inmueble);
+                return PartialView(nameof(Formulario), inmueble);
             }
             catch (Exception e)
             {
                 ViewBag.Error = "Ocurrió un error inesperado";
                 Console.WriteLine(e.ToString());
 
-                return View(nameof(Formulario), inmueble);
+                return PartialView(nameof(Formulario), inmueble);
             }
 
 
         }
-
+        [Authorize(Policy = "Administrador")]
         public IActionResult Eliminar(int id)
         {
             try
@@ -157,7 +168,7 @@ namespace inmobiliaria.Controllers
 
 
         }
-
+        [Authorize(Policy = "Administrador")]
         public IActionResult Reactivar(int id)
         {
             try
@@ -280,6 +291,35 @@ namespace inmobiliaria.Controllers
             {
                 Console.WriteLine(e.ToString());
                 return StatusCode(500, "Error general");
+            }
+        }
+
+        public IActionResult _CardInmueble(int idPropietario)
+        {
+            IList<Inmueble> inmuebles = new List<Inmueble>();
+
+            try
+            {
+                if (idPropietario == 0)
+                {
+                    inmuebles = repositorioInmueble.ListarTodos();
+
+                    return PartialView(inmuebles);
+                }
+                inmuebles = repositorioInmueble.BuscarPorPropietario(idPropietario);
+                return PartialView(inmuebles);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.ToString());
+
+                return PartialView(new List<Inmueble>());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+
+                return View(new List<Inmueble>());
             }
         }
     }

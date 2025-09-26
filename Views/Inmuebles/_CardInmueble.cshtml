@@ -1,0 +1,29 @@
+@model IEnumerable<inmobiliaria.Models.Inmueble>
+@{
+    ViewData["Title"] = "Listado de Inmuebles del propietario";
+}           
+
+ @foreach (var item in Model)
+ {
+
+      <div class="card" style="width: 18rem;">
+              <img src="/images/default1.png" class="card-img-top imagen-card" alt="Imagen Inmueble">
+              <div class="card-body">
+                <h6>@Html.DisplayNameFor(model => model.Direccion)</h6>
+                <h4  class="card-title">@Html.DisplayFor(modelItem => item.Direccion)</h4>
+                <p>@Html.DisplayNameFor(model => model.Uso)</p>
+                <h5>@Html.DisplayFor(modelItem => item.Uso)</h5>
+                <p>@Html.DisplayNameFor(model => model.Precio)</p>
+                <h4>@Html.DisplayFor(modelItem => item.Precio)</h4>
+          <div class="btn-group" role="group">
+            <a class="btn btn-warning" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
+            <a class="btn btn-danger" asp-action="Formulario" asp-route-id="@item.Id">Eliminar</a>
+            <button type="button" class="btn btn-primary" onclick="cargarModal(@item.Id)">
+             Detalle
+            </button>
+
+          </div>
+
+          </div>
+    </div>
+ }

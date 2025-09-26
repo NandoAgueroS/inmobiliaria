@@ -1,0 +1,69 @@
+@model IEnumerable<inmobiliaria.Models.Contrato>
+@{
+    ViewData["Title"] = "Listado de contratos por inmueble";
+}
+
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdInmueble)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Monto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaDesde)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaHasta)
+            </th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Monto)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Inquilino.Nombre) @Html.DisplayFor(modelItem => item.Inquilino.Apellido)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Inmueble.Direccion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaDesde)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaHasta)
+                </td>
+                <div class="btn-group" role="group">
+                    <td>
+                        <a class="btn btn-warning" asp-controller="Contratos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
+                        <a class="btn btn-warning" asp-controller="Pagos" asp-action="Formulario" asp-route-id="@item.Id">Crear Pago</a>
+                        <a class="btn btn-danger" asp-controller="Contratos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
+                        <button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
+                          Detalle
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="cancelarModal(@item.Id)">
+                         Cancelar 
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="renovarModal(@item.Id)">
+                        Renovar
+                        </button>
+                       
+                    </td>
+               </div>
+            </tr>
+        }
+    </tbody>
+</table>
