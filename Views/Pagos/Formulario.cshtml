@@ -12,12 +12,12 @@
     <div class="text-danger" asp-validation-summary="ModelOnly"></div>
       <div>
           <label asp-for="Concepto"></label>
-          <input class="form-control" asp-for="Concepto" readonly="@esMulta">
+          <input class="form-control" asp-for="Concepto"> 
           <span asp-validation-for="Concepto" class="text-danger" ></span>
       </div>
       <div>
           <label asp-for="Monto"></label>
-          <input class="form-control" asp-for="Monto" type="number" step="0.01" readonly="@esMulta">
+          <input class="form-control" asp-for="Monto" type="number" step="0.01">
           <span asp-validation-for="Monto" class="text-danger" ></span>
       </div>
       <div>
@@ -28,14 +28,12 @@
     <input type="hidden" asp-for="IdContrato">
     <input type="hidden" asp-for="Fecha">
 
-    @if (!esMulta) {
       <label for="mensual">Pago mensual</label> 
       <input id="mensual" type="checkbox"> 
       <div id="mensual-container" class="d-none">
           <label asp-for="CorrespondeAMes"></label>
           <input class="form-control" asp-for="CorrespondeAMes">
       </div>
-    }
       <button type="Submit">Pagar</button>
     </div>
 </form>
@@ -44,43 +42,29 @@
 @if (ViewBag.Contrato != null) {
 <script>
     const correspondeAMes= document.getElementById('mensual-container');
-    const checkbox = document.getElementById('mensual');
-    const inputCorresponde = document.getElementById('CorrespondeAMes');
-
-    if (checkbox) {
-        checkbox.addEventListener('change', (e) => {
-            if (e.target.checked){
-                fetch("/Pagos/Ultimo/"+ @ViewBag.Contrato.Id)
-                    .then(response => {
-                        if (response.status === 204) { // No Content
-                            return null;
-                        }
-                        if (!response.ok) {
-                            throw new Error('Error en la respuesta del servidor');
-                        }
-                        return response.json();
-                    })
-                    .then( data => { 
-                        correspondeAMes.classList.remove('d-none');
-                        let fecha = data && data.correspondeAMes ? new Date(data.correspondeAMes) : new Date("@ViewBag.Contrato.FechaDesde");
-                        if (data && data.correspondeAMes) {
-                            fecha.setMonth(fecha.getMonth() + 1);
-                        }
-                        inputCorresponde.value = fecha.toISOString().slice(0,10);
-                    })
-                    .catch(error => {
-                        console.error(error);
-                        toastr.error('Error al consultar el último pago. Se usará la fecha de inicio del contrato.');
-                        correspondeAMes.classList.remove('d-none');
-                        let fecha = new Date("@ViewBag.Contrato.FechaDesde");
-                        inputCorresponde.value = fecha.toISOString().slice(0,10);
-                    });
-            } else {
-                correspondeAMes.classList.add('d-none');
-                inputCorresponde.value = '';
-            }
-        });
+    const checkbox = document.getElementById('mensual')
+    checkbox.addEventListener('change', (e) => {
+    if (e.target.checked){
+      fetch("/Pagos/Siguiente/"+ @ViewBag.Contrato.Id)
+        .then( response => 
+          response.json()
+        )
+          .then( data => { 
+          correspondeAMes.classList.remove('d-none');
+          let fecha = new Date(data);
+          correspondeAMes.querySelector('#CorrespondeAMes').value = fecha.toISOString().slice(0,10);
+          // correspondeAMes.querySelector('#CorrespondeAMes').value = '2025-09-12';
+          }
+        )
+        .catch(error => {
+            console.log(error);
+          toast.error('Error al consultar el último pago')
+        })
+    }else {
+          correspondeAMes.classList.add('d-none');
+          correspondeAMes.querySelector('#CorrespondeAMes').value = '';
     }
+  })
+  
 </script>
-}
-}
+}}

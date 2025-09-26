@@ -221,6 +221,21 @@ namespace inmobiliaria.Controllers
             return Ok(ultimoPago);
         }
 
+        [HttpGet("Pagos/Siguiente/{idContrato}")]
+        public IActionResult Siguiente(int idContrato)
+        {
+
+            Pago ultimoPago = repositorioPago.BuscarUltimoPago(idContrato);
+            if (ultimoPago == null)
+            {
+                Contrato contrato = repositorioContrato.BuscarPorId(idContrato);
+                return Ok(contrato.FechaDesde);
+            }
+            else
+            {
+                return Ok(ultimoPago.CorrespondeAMes.Value.AddMonths(1));
+            }
+        }
         public IActionResult Listar(int? idInquilino)
         {
             try
