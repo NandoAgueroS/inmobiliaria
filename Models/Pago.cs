@@ -27,6 +27,11 @@ namespace inmobiliaria.Models
 
         public DateOnly? CorrespondeAMes { get; set; }
 
+        public int CreadoPor { get; set; }
+
+
+        public int? AnuladoPor { get; set; }
+
         public bool Estado { get; set; }
 
 

@@ -292,6 +292,7 @@ namespace inmobiliaria.Controllers
                         new Claim("FullName", usuario.Nombre + usuario.Apellido),
                         new Claim(ClaimTypes.Role, usuario.RolNombre),
                         new Claim("Avatar", usuario.Avatar),
+                        new Claim("IdUsuario", usuario.Id.Value.ToString()),
 
                     };
 

@@ -136,6 +136,7 @@ namespace inmobiliaria.Controllers
             {
                 if (pago.Id == null)
                 {
+                    pago.CreadoPor = int.Parse(User.FindFirst("AnuladoPor").Value);
                     repositorioPago.Alta(pago);
                     TempData["Accion"] = Accion.Alta.value;
                 }
@@ -164,12 +165,13 @@ namespace inmobiliaria.Controllers
 
 
         }
+
         [Authorize(Policy = "Administrador")]
         public IActionResult Eliminar(int id)
         {
             try
             {
-                repositorioPago.Baja(id);
+                repositorioPago.Baja(id, int.Parse(User.FindFirst("AnuladoPor").Value));
                 TempData["Accion"] = Accion.Baja.value;
                 TempData["Id"] = id;
                 return RedirectToAction(nameof(Index));

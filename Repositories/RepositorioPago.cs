@@ -21,8 +21,9 @@ namespace inmobiliaria.Repositories
                 {nameof(Pago.Fecha)},
                 {nameof(Pago.CorrespondeAMes)},
                 {nameof(Pago.IdContrato)},
+                {nameof(Pago.CreadoPor)},
                 {nameof(Pago.Estado)}) VALUES (
-                @NumeroPago, @Concepto, @Monto, @Fecha, @CorrespondeAMes, @IdContrato, true);
+                @NumeroPago, @Concepto, @Monto, @Fecha, @CorrespondeAMes, @IdContrato, @CreadoPor, true);
                 SELECT LAST_INSERT_ID();";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -32,6 +33,7 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@Fecha", m.Fecha.ToString("yyyy-MM-dd"));
                     command.Parameters.AddWithValue("@CorrespondeAMes", m.CorrespondeAMes == null ? DBNull.Value : m.CorrespondeAMes.Value.ToString("yyyy-MM-dd"));
                     command.Parameters.AddWithValue("@IdContrato", m.IdContrato);
+                     command.Parameters.AddWithValue("@CreadoPor", m.CreadoPor);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     m.Id = res;
@@ -40,17 +42,22 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
-
         public int Baja(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Baja(int id, int anuladoPor)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"UPDATE Pagos SET {nameof(Pago.Estado)} = false WHERE IdPago = @Id";
+                string query = $@"UPDATE Pagos SET {nameof(Pago.Estado)}= false, {nameof(Pago.AnuladoPor)} = @AnuladoPor WHERE IdPago = @Id";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@AnuladoPor", anuladoPor);
                     connection.Open();
                     res = command.ExecuteNonQuery();
                     connection.Close();
