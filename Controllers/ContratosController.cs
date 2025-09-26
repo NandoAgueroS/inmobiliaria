@@ -80,7 +80,7 @@ namespace inmobiliaria.Controllers
                 {
                     if (contrato.Id == null)
                     {
-                        contrato.CreadoPor = int.Parse(User.FindFirst("Id").Value);
+                        contrato.CreadoPor = int.Parse(User.FindFirst("IdUsuario").Value);
                         repositorioContrato.Alta(contrato);
                         TempData["Accion"] = Accion.Alta.value;
                     }

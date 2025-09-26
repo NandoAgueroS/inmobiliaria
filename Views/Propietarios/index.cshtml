@@ -31,7 +31,7 @@
 
 						<a class="btn btn-danger" asp-controller="Propietarios" asp-action="Eliminar" asp-route-id="@item.Id" >Eliminar</a>
             }
-            <a class="btn btn-success" asp-controller="Inmuebles" asp-action="Index" asp-route-idPropietario="@item.Id" >Ver Inmuebles</a>
+            <a class="d-none" asp-controller="Inmuebles" asp-action="Index" asp-route-idPropietario="@item.Id" >Ver Inmuebles</a>
                         <button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
                           Detalle
                         </button>

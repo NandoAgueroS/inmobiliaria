@@ -206,7 +206,7 @@ function cargarInmuebles(inmuebles) {
                     
             <a class="btn btn-warning" href=/Inmuebles/Formulario/${item.id}>Editar</a>
           @if(User.IsInRole("Administrador")){
-            <a class="btn btn-danger" href=/Inmuebles/Formulario/${item.id}>Eliminar</a>
+            <a class="btn btn-danger" href=/Inmuebles/Eliminar/${item.id}>Eliminar</a>
           }
           </div>
 <button type="button" class="btn btn-primary" onclick="cargarDatos(${item.id})">

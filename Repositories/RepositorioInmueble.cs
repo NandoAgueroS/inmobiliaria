@@ -23,9 +23,10 @@ namespace inmobiliaria.Repositories
             {nameof(Inmueble.Ambientes)},
             {nameof(Inmueble.Direccion)},
             {nameof(Inmueble.Precio)},
+            {nameof(Inmueble.Disponible)},
             {nameof(Inmueble.Coordenadas)},
             {nameof(Inmueble.Estado)}) VALUES (
-            @IdPropietario, @IdTipo, @Uso, @Ambientes, @Direccion, @Precio, @Coordenadas, true);
+            @IdPropietario, @IdTipo, @Uso, @Ambientes, @Direccion, @Precio, @Disponible, @Coordenadas, true);
             SELECT LAST_INSERT_ID();";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -35,6 +36,7 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@Ambientes", m.Ambientes);
                     command.Parameters.AddWithValue("@Direccion", m.Direccion);
                     command.Parameters.AddWithValue("@Precio", m.Precio);
+                    command.Parameters.AddWithValue("@Disponible", m.Disponible);
                     command.Parameters.AddWithValue("@Coordenadas", m.Coordenadas);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
@@ -89,6 +91,7 @@ namespace inmobiliaria.Repositories
                             Direccion = reader.GetString(nameof(Inmueble.Direccion)),
                             Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
                             Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                            Disponible = reader.GetBoolean(nameof(Inmueble.Disponible)),
                             Estado = reader.GetBoolean(nameof(Contrato.Estado)),
                             Propietario = new Propietario
                             {
@@ -173,6 +176,7 @@ namespace inmobiliaria.Repositories
                 {nameof(Inmueble.Uso)} = @uso,
                 {nameof(Inmueble.Ambientes)} = @Ambientes,
                 {nameof(Inmueble.Direccion)} = @Direccion,
+                {nameof(Inmueble.Disponible)} = @Disponible,
                 {nameof(Inmueble.Precio)} = @Precio,
                 {nameof(Inmueble.Coordenadas)} = @Coordenadas
                 WHERE IdInmueble = @Id;";
@@ -185,6 +189,7 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@Uso", m.Uso);
                     command.Parameters.AddWithValue("@Ambientes", m.Ambientes);
                     command.Parameters.AddWithValue("@Direccion", m.Direccion);
+                    command.Parameters.AddWithValue("@Disponible", m.Disponible);
                     command.Parameters.AddWithValue("@Precio", m.Precio);
                     command.Parameters.AddWithValue("@Coordenadas", m.Coordenadas);
 
