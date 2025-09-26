@@ -28,8 +28,8 @@ namespace inmobiliaria.Repositories
                 {nameof(Contrato.Monto)},
                 {nameof(Contrato.FechaDesde)},
                 {nameof(Contrato.FechaHasta)},
-                {nameof(Contrato.Estado)}) VALUES (
-                @IdInquilino, @IdInmueble, @Monto, @FechaDesde, @FechaHasta, true);
+                {nameof(Contrato.CreadoPor)}, {nameof(Contrato.Estado)}) VALUES (
+                @IdInquilino, @IdInmueble, @Monto, @FechaDesde, @FechaHasta, @CreadoPor, true);
                 SELECT LAST_INSERT_ID();";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -38,6 +38,7 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@Monto", m.Monto);
                     command.Parameters.AddWithValue("@FechaDesde", m.FechaDesde.ToString("yyyy-MM-dd"));
                     command.Parameters.AddWithValue("@FechaHasta", m.FechaHasta.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@CreadoPor", m.CreadoPor);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     m.Id = res;
@@ -47,16 +48,17 @@ namespace inmobiliaria.Repositories
             return res;
         }
 
-        public int Baja(int id)
+        public int Baja(int id, int anuladoPor)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"UPDATE Contratos SET {nameof(Contrato.Estado)} = 0 WHERE IdContrato = @Id";
+                string query = $@"UPDATE Contratos SET {nameof(Contrato.Estado)} = false, {nameof(Contrato.AnuladoPor)} = @AnuladoPor WHERE IdContrato = @Id";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@AnuladoPor", anuladoPor);
                     connection.Open();
                     res = command.ExecuteNonQuery();
                     connection.Close();
@@ -117,6 +119,8 @@ namespace inmobiliaria.Repositories
                             Monto = reader.GetDecimal(nameof(Contrato.Monto)),
                             FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
                             FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
+                            CreadoPor = reader.GetInt32(nameof(Contrato.CreadoPor)),
+                            AnuladoPor = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.AnuladoPor))) ? null : reader.GetInt32(nameof(Contrato.AnuladoPor)),
                             Estado = reader.GetBoolean(nameof(Contrato.Estado)),
                             Inquilino = new Inquilino
                             {
@@ -180,6 +184,8 @@ namespace inmobiliaria.Repositories
                             Monto = reader.GetDecimal(nameof(Contrato.Monto)),
                             FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
                             FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
+                            CreadoPor = reader.GetInt32(nameof(Contrato.CreadoPor)),
+                            AnuladoPor = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.AnuladoPor))) ? null : reader.GetInt32(nameof(Contrato.AnuladoPor)),
                             Estado = reader.GetBoolean(nameof(Contrato.Estado)),
                             Inquilino = new Inquilino
                             {
@@ -268,6 +274,8 @@ namespace inmobiliaria.Repositories
                             Monto = reader.GetDecimal(nameof(Contrato.Monto)),
                             FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
                             FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
+                            CreadoPor = reader.GetInt32(nameof(Contrato.CreadoPor)),
+                            AnuladoPor = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.AnuladoPor))) ? null : reader.GetInt32(nameof(Contrato.AnuladoPor)),
                             Estado = reader.GetBoolean(nameof(Contrato.Estado)),
                             Inquilino = new Inquilino
                             {
@@ -304,7 +312,7 @@ namespace inmobiliaria.Repositories
             IList<Contrato> res = new List<Contrato>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Contratos c JOIN Inmuebles im ON c.IdInmueble = im.@idInmueble JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino  WHERE c.Estado = true;";
+                string query = $@"SELECT * FROM Contratos c JOIN Inmuebles im ON c.IdInmueble = im.IdInmueble JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino  WHERE c.Estado = true AND c.IdInmueble = @IdInmueble;";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -322,6 +330,8 @@ namespace inmobiliaria.Repositories
                             Monto = reader.GetDecimal(nameof(Contrato.Monto)),
                             FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
                             FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
+                            CreadoPor = reader.GetInt32(nameof(Contrato.CreadoPor)),
+                            AnuladoPor = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.AnuladoPor))) ? null : reader.GetInt32(nameof(Contrato.AnuladoPor)),
                             Estado = reader.GetBoolean(nameof(Contrato.Estado)),
                             Inquilino = new Inquilino
                             {
@@ -349,6 +359,10 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
-        
+
+        public int Baja(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -63,7 +63,7 @@
 				$("#modal_cancelacion").modal("show");
 			}
 			if (!modal) {
-          fetch("/Contratos/CancelarModal/" + id)
+          fetch("/Contratos/_CancelarModal/" + id)
               .then(response => response.text())
 				.then(data => {
 					console.log("Modal: ", data);
@@ -165,7 +165,6 @@
               }) 
               
 
-              }
             }
             cargarTable()
     </script>

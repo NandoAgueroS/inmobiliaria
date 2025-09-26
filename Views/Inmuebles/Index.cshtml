@@ -191,37 +191,14 @@ const fechaHasta = document.getElementById('filtro-periodo-hasta');
 
     fechaDesde.addEventListener('change', ()=>{
       if (fechaDesde.value && fechaHasta.value){
-        listar(filtroDisponibles.checked, fechaDesde.value,fechaHasta.value)
+        cargarContInmueble(null, filtroDisponibles.checked, fechaDesde.value,fechaHasta.value)
       }
     })
     fechaHasta.addEventListener('change', ()=>{
       if (fechaDesde.value && fechaHasta.value){
-        listar(filtroDisponibles.checked, fechaDesde.value,fechaHasta.value)
+        cargarContInmueble(null, filtroDisponibles.checked, fechaDesde.value,fechaHasta.value)
       }
     })
-    function listar(disponibles, fechaDesde, fechaHasta){
-      let url = "/Inmuebles/Listar";
-      
-      if (disponibles != null){
-        url = url + "?disponibles="+disponibles
-      }
-      if (fechaDesde && fechaHasta && disponibles != null){
-        url = url + "&fechaDesde="+fechaDesde + "&fechaHasta"+fechaHasta
-      }else if(fechaDesde && fechaHasta){
-        url = url + "?fechaDesde="+fechaDesde + "&fechaHasta"+fechaHasta
-      }
-
-    fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        cargarInmuebles(data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        toastr.error('Error al cargar los inmuebles');
-            }); 
-      
-    }
 function cargarInmuebles(inmuebles) {
     const inmueblesContainer = document.getElementById('inmuebles-container');
       inmueblesContainer.innerHTML = '';
@@ -250,14 +227,15 @@ function cargarInmuebles(inmuebles) {
       });}
 
 document.getElementById('filtro-disponibles').addEventListener('change', () => {
-listar(filtroDisponibles.checked, fechaDesde.value, fechaHasta.value);
+cargarContInmueble(null, filtroDisponibles.checked, fechaDesde.value, fechaHasta.value);
       });
     ///listar(filtroDisponibles.checked);
 
 
-   function cargarContInmueble(id=""){
-            const contenedorInmueble = document.getElementById('inmuebles-container')
-              fetch("/Inmuebles/_CardInmueble?idPropietario="+id)
+    const contenedorInmueble = document.getElementById('inmuebles-container');
+   function cargarContInmueble(id="", disponibles, fechaDesde, fechaHasta){
+            const params = { id, disponibles, fechaDesde, fechaHasta};
+              fetch("/Inmuebles/_CardInmueble?" + "idPropietario="+id+"&disponibles="+disponibles+"&fechaDesde="+fechaDesde+"&fechaHasta="+fechaHasta)
               .then(response => response.text())
               .then(data =>{
                 contenedorInmueble.innerHTML= data
@@ -267,9 +245,7 @@ listar(filtroDisponibles.checked, fechaDesde.value, fechaHasta.value);
                 console.error(error)
                 toastr.error('Error al cargar los inmuebles');
               }) 
-              
 
-              
             }
             cargarContInmueble(document.getElementById("IdPropietario").value || "" )
            $("#IdPropietario").on("change",(e)=>

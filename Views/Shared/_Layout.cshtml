@@ -48,19 +48,21 @@
  
                     </ul>
 <div class="col-md-6 mb-3">
-    <label class="form-label fw-semibold text-muted">Email</label>
 
     @if (User?.Identity?.IsAuthenticated == true)
     {
+        <a asp-action="Perfil" asp-controller="Usuarios">
+        <label class="form-label fw-semibold text-muted">Email</label>
         <p class="fs-5">@User.Identity.Name</p>
 
-            var avatar = User.FindFirst("Avatar")?.Value;
+            @{var avatar = User.FindFirst("Avatar")?.Value;
             var avatarUrl = string.IsNullOrEmpty(avatar)
                 ? Url.Content("~/images/default-avatar.png")
-                : avatar;
+                : avatar;}
 
         <img src="@(avatarUrl)" alt="Avatar" class="rounded-circle img-fluid"
              style="width: 120px; height: 120px; object-fit: cover;">
+             </a>
               }
 </div>
             <a asp-controller="Usuarios" asp-action="Logout" class="btn btn-danger">Salir</a>

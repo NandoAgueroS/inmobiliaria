@@ -49,7 +49,7 @@
                 <div class="btn-group" role="group">
                     <td>
                         <a class="btn btn-warning" asp-controller="Contratos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
-                        <a class="btn btn-warning" asp-controller="Pagos" asp-action="Formulario" asp-route-id="@item.Id">Crear Pago</a>
+                        <a class="btn btn-warning" asp-controller="Pagos" asp-action="Formulario" asp-route-idContrato="@item.Id">Crear Pago</a>
                         <a class="btn btn-danger" asp-controller="Contratos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
                         <button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
                           Detalle

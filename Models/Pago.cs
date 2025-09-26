@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace inmobiliaria.Models
 {
-   
+
     public class Pago
     {
         public int? Id { get; set; }

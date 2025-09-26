@@ -80,6 +80,7 @@ namespace inmobiliaria.Controllers
                 {
                     if (contrato.Id == null)
                     {
+                        contrato.CreadoPor = int.Parse(User.FindFirst("Id").Value);
                         repositorioContrato.Alta(contrato);
                         TempData["Accion"] = Accion.Alta.value;
                     }
@@ -117,7 +118,7 @@ namespace inmobiliaria.Controllers
         }
 
 
-        public IActionResult CancelarModal(int id)
+        public IActionResult _CancelarModal(int id)
         {
             Contrato contrato = repositorioContrato.BuscarPorId(id);
             Pago ultimoPago = repositorioPago.BuscarUltimoPago(id);
@@ -140,17 +141,26 @@ namespace inmobiliaria.Controllers
                 multa = contrato.Monto;
             }
             /*mete todos los datos en view bags*/
+            bool multaPagada = repositorioPago.BuscarMulta(id);
+            if (!multaPagada)
+            {
+
+                ViewBag.Multa = multa;
+                TempData["Multa"] = multa.ToString();
+                TempData["DesdeMulta"] = true;
+            }
             ViewBag.IdContrato = id;
-            // ViewBag.Multa = multa;
-            TempData["Multa"] = multa.ToString();
-            ViewBag.MesesImpagos = mesesImpagos;
-            TempData["MesesImpagos"] = mesesImpagos;
-            TempData["DesdeMulta"] = true;
-            ViewBag.MesesRestantes = mesesRestantes;
+            if (mesesImpagos > 0)
+            {
+                ViewBag.MesesImpagos = mesesImpagos;
+                TempData["MesesImpagos"] = mesesImpagos;
+                ViewBag.MesesRestantes = mesesRestantes;
+
+            }
             ViewBag.MesesTotales = mesesTotales;
             ViewBag.MesesTranscurridos = mesesTranscurridos;
 
-            return View();
+            return PartialView();
         }
 
         [Authorize(Policy = "Administrador")]
@@ -171,7 +181,7 @@ namespace inmobiliaria.Controllers
                         TempData["Error"] = "No se puede cancelar el contrato, tiene pagos pendientes";
                     }
                 }
-                repositorioContrato.Baja(id);
+                repositorioContrato.Baja(id, int.Parse(User.FindFirst("Id").Value));
                 TempData["Accion"] = Accion.Baja.value;
                 TempData["Id"] = id;
 
@@ -220,7 +230,7 @@ namespace inmobiliaria.Controllers
             }
         }
 
-        public IActionResult RenovarModal(int id)
+        public IActionResult _RenovarModal(int id)
         {
             if (id == 0)
                 return View(nameof(Index));
@@ -233,7 +243,7 @@ namespace inmobiliaria.Controllers
                 NuevoMonto = contratoOriginal.Monto
             };
             ViewBag.IdInmueble = contratoOriginal.IdInmueble;
-            return View(contratoDTO);
+            return PartialView(contratoDTO);
         }
 
         public IActionResult Renovar(RenovarContratoDTO contratoDTO)
@@ -261,12 +271,12 @@ namespace inmobiliaria.Controllers
                 {
 
                     IList<Contrato> contratos = repositorioContrato.ListarTodos();
-                    return View(contratos);
+                    return PartialView("_DataTable", contratos);
                 }
                 else
                 {
                     IList<Contrato> contratos = repositorioContrato.ListarPorInmueble(idInmueble.Value);
-                    return View(contratos);
+                    return PartialView("_DataTable", contratos);
                 }
             }
             catch (MySqlException ex)
@@ -275,15 +285,14 @@ namespace inmobiliaria.Controllers
 
                 Console.WriteLine(ex.ToString());
 
-                return View(new List<Contrato>());
+                return PartialView("_DataTable", new List<Contrato>());
             }
             catch (Exception ex)
             {
                 ViewBag.Error = "Ocurrió un error inesperado";
                 Console.WriteLine(ex.ToString());
-                return View(new List<Contrato>());
-            }
+                return PartialView("_DataTable", new List<Contrato>());
             }
         }
-    
+    }
 }

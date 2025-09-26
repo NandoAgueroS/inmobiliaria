@@ -558,15 +558,18 @@ namespace inmobiliaria.Repositories
         }
         public bool BuscarMulta(int idContrato)
         {
-             bool res = false;
+            bool res = false;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT  FROM `Pagos` WHERE IdContrato = @IdContrato AND Concepto =Multa;";
+                string query = $@"SELECT * FROM `Pagos` WHERE IdContrato = @IdContrato AND Concepto ='Multa';";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@IdContrato", idContrato);
                     connection.Open();
-                   
+
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                        res = true;
                     connection.Close();
                 }
             }

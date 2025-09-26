@@ -13,14 +13,14 @@ namespace inmobiliaria.Controllers
         private readonly IRepositorioInmueble repositorioInmueble;
         private readonly IRepositorioTipo repositorioTipo;
         private readonly IRepositorioPropietario repositorioPropietario;
-        
+
         public InmueblesController(IRepositorioInmueble repositorioInmueble, IRepositorioTipo repositorioTipo, IRepositorioPropietario repositorioPropietario)
         {
             this.repositorioPropietario = repositorioPropietario;
             this.repositorioInmueble = repositorioInmueble;
             this.repositorioTipo = repositorioTipo;
         }
-        public IActionResult Index(int idPropietario)
+        public IActionResult Index(int idPropietario, bool? disponibles, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
             try
             {
@@ -35,9 +35,8 @@ namespace inmobiliaria.Controllers
                 {
                     Propietario propietario = repositorioPropietario.BuscarPorId(idPropietario);
                     ViewBag.Propietario = propietario;
-                    
-                    }
-                
+                }
+
                 return View();
 
             }
@@ -294,19 +293,12 @@ namespace inmobiliaria.Controllers
             }
         }
 
-        public IActionResult _CardInmueble(int idPropietario)
+        public IActionResult _CardInmueble(int idPropietario, DateOnly? fechaDesde, DateOnly? fechaHasta, bool? disponibles)
         {
             IList<Inmueble> inmuebles = new List<Inmueble>();
 
             try
             {
-                if (idPropietario == 0)
-                {
-                    inmuebles = repositorioInmueble.ListarTodos();
-
-                    return PartialView(inmuebles);
-                }
-                inmuebles = repositorioInmueble.BuscarPorPropietario(idPropietario);
                 return PartialView(inmuebles);
             }
             catch (MySqlException ex)

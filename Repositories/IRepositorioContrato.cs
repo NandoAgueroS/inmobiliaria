@@ -7,5 +7,6 @@ namespace inmobiliaria.Repositories
 
         Contrato BuscarActualPorInquilino(int idInquilino);
         IList<Contrato> ListarPorInmueble(int idInmueble);
+        int Baja(int id, int anuladoPor);
     }
 }

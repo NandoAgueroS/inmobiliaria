@@ -83,17 +83,17 @@ namespace inmobiliaria.Controllers
                     };
                     if (TempData["DesdeMulta"] != null)
                     {
-                        Pago ultimoPago = repositorioPago.BuscarUltimoPago(idContrato);
-                        DateOnly fechaUltimoPago = ultimoPago.CorrespondeAMes.Value;
+                        // Pago ultimoPago = repositorioPago.BuscarUltimoPago(idContrato);
+                        // DateOnly fechaUltimoPago = ultimoPago.CorrespondeAMes.Value;
 
-                        int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
-                        int mesesPagados = repositorioPago.ContarPagosMensuales(idContrato);
+                        // int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
+                        // int mesesPagados = repositorioPago.ContarPagosMensuales(idContrato);
 
-                        int mesesImpagos = mesesTotales - mesesPagados;
-                        decimal total = Decimal.Parse((String)TempData["Multa"]) + (int)TempData["MesesImpagos"] * contrato.Monto;
+                        // int mesesImpagos = mesesTotales - mesesPagados;
+                        // decimal total = Decimal.Parse((String)TempData["Multa"]) + (int)TempData["MesesImpagos"] * contrato.Monto;
 
 
-                        pago.Monto = total;
+                        pago.Monto = Decimal.Parse(TempData["Multa"] as String);
                         pago.Concepto = "Multa";
                     }
                     ;
@@ -136,7 +136,7 @@ namespace inmobiliaria.Controllers
             {
                 if (pago.Id == null)
                 {
-                    pago.CreadoPor = int.Parse(User.FindFirst("AnuladoPor").Value);
+                    pago.CreadoPor = int.Parse(User.FindFirst("IdUsuario").Value);
                     repositorioPago.Alta(pago);
                     TempData["Accion"] = Accion.Alta.value;
                 }
@@ -194,7 +194,7 @@ namespace inmobiliaria.Controllers
 
 
         }
-        
+
         [Authorize(Policy = "Administrador")]
         public IActionResult Reactivar(int id)
         {

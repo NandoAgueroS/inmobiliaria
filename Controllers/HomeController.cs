@@ -16,6 +16,8 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        if (TempData.ContainsKey("Error"))
+            ViewBag.Error = TempData["Error"];
         return View();
     }
 

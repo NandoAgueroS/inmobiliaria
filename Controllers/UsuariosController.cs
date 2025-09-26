@@ -106,39 +106,77 @@ namespace inmobiliaria.Controllers
 
         }
 
-        public ActionResult EditarAvatar(CambiarAvatarDTO cambiarAvatarDTO)
+        [HttpPost]
+        public async Task<IActionResult> EditarAvatar(Usuario usuarioConAvatar)
         {
-            if (cambiarAvatarDTO.AvatarFile != null && cambiarAvatarDTO.IdUsuario > 0)
+            if (usuarioConAvatar.AvatarFile != null && usuarioConAvatar.Id.HasValue)
             {
-                Usuario usuario = repositorioUsuario.BuscarPorId(cambiarAvatarDTO.IdUsuario);
-                string wwwPath = environment.WebRootPath;
-                string path = Path.Combine(wwwPath, "uploads");
-                if (!Directory.Exists(path))
+                try
                 {
-                    Directory.CreateDirectory(path);
-                }
-                var ruta = Path.Combine(environment.WebRootPath, "uploads", $"avatar_{usuario.Id}" + Path.GetExtension(User.FindFirst("Avatar").Value));
-                if (System.IO.File.Exists(ruta))
-                    System.IO.File.Delete(ruta);
-                string fileName = "avatar_" + usuario.Id + Path.GetExtension(cambiarAvatarDTO.AvatarFile.FileName);
-                string pathCompleto = Path.Combine(path, fileName);
-                usuario.Avatar = Path.Combine("/uploads", fileName);
+                    Usuario usuario = repositorioUsuario.BuscarPorId(usuarioConAvatar.Id.Value);
+                    if (usuario == null)
+                    {
+                        TempData["Error"] = "Usuario no encontrado.";
+                        return RedirectToAction(nameof(Perfil));
+                    }
 
-                using (FileStream stream = new FileStream(pathCompleto, FileMode.Create))
-                {
-                    usuario.AvatarFile.CopyTo(stream);
+                    // 1. Eliminar avatar anterior si existe
+                    if (!string.IsNullOrEmpty(usuario.Avatar))
+                    {
+                        var rutaAntigua = Path.Combine(environment.WebRootPath, usuario.Avatar.TrimStart('/'));
+                        if (System.IO.File.Exists(rutaAntigua))
+                        {
+                            System.IO.File.Delete(rutaAntigua);
+                        }
+                    }
+
+                    // 2. Guardar nuevo avatar
+                    string wwwPath = environment.WebRootPath;
+                    string path = Path.Combine(wwwPath, "uploads");
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    string fileName = "avatar_" + usuario.Id + Path.GetExtension(usuarioConAvatar.AvatarFile.FileName);
+                    string pathCompleto = Path.Combine(path, fileName);
+                    usuario.Avatar = Path.Combine("/uploads", fileName);
+
+                    using (FileStream stream = new FileStream(pathCompleto, FileMode.Create))
+                    {
+                        usuarioConAvatar.AvatarFile.CopyTo(stream);
+                    }
+                    repositorioUsuario.Modificacion(usuario);
+
+                    // 3. Actualizar el claim del avatar si el usuario es el que está logueado
+                    if (User.Identity.Name == usuario.Email)
+                    {
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, usuario.Email),
+                            new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
+                            new Claim(ClaimTypes.Role, usuario.RolNombre),
+                            new Claim("Avatar", usuario.Avatar ?? ""),
+                            new Claim("IdUsuario", usuario.Id.Value.ToString()),
+                        };
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                    }
+
+                    TempData["Accion"] = Accion.Modificacion.value;
+                    return RedirectToAction(nameof(Perfil));
                 }
-                repositorioUsuario.Modificacion(usuario);
-                TempData["Accion"] = Accion.Modificacion.value;
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    TempData["Error"] = "Ocurrió un error al cambiar el avatar.";
+                    return RedirectToAction(nameof(Perfil));
+                }
             }
             else
             {
-                ViewBag.Error = "Ingresó datos inválidos";
-                return View(nameof(EditarAvatar), cambiarAvatarDTO);
+                TempData["Error"] = "No se ha seleccionado ningún archivo.";
+                return RedirectToAction(nameof(Perfil));
             }
-
-
         }
         public ActionResult CambiarClave(int id)
         {
@@ -184,7 +222,7 @@ namespace inmobiliaria.Controllers
 
 
                 TempData["Accion"] = Accion.Modificacion.value;
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Perfil));
             }
             catch (Exception ex)
             {
@@ -195,11 +233,61 @@ namespace inmobiliaria.Controllers
 
         }
 
+        [HttpPost]
         [Authorize]
-        public IActionResult Perfil()
+        public async Task<ActionResult> EditarPerfil(Usuario usuario)
         {
-            var usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
-            ViewBag.Roles = Usuario.ObtenerRoles();
+            try
+            {
+
+                Usuario usuarioOriginal = repositorioUsuario.BuscarPorId(usuario.Id.Value);
+                string mailViejo = usuarioOriginal.Email;
+                if (usuarioOriginal != null) {
+                    usuarioOriginal.Nombre = usuario.Nombre;
+                    usuarioOriginal.Apellido = usuario.Apellido;
+                    usuarioOriginal.Email = usuario.Email;
+                }
+                repositorioUsuario.Modificacion(usuario);
+                if (User.Identity.Name == mailViejo)
+                {
+                    var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, usuario.Email),
+                            new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
+                            new Claim(ClaimTypes.Role, usuarioOriginal.RolNombre),
+                            new Claim("Avatar", usuarioOriginal.Avatar ?? ""),
+                            new Claim("IdUsuario", usuarioOriginal.Id.Value.ToString()),
+                        };
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                }
+                TempData["Accion"] = Accion.Modificacion.value;
+                return RedirectToAction(nameof(Perfil));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                ViewBag.Error = "Ocurrió un error al actualizar el perfil";
+                return View(nameof(Perfil), usuario);
+            }
+        }
+
+        [Authorize]
+        public IActionResult Perfil(int id)
+        {
+            // var usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
+            if (TempData.ContainsKey("Error"))
+                ViewBag.Error = TempData["Error"];
+            Usuario usuario;
+            if (id == 0)
+                usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
+            else
+                usuario = repositorioUsuario.BuscarPorId(id);
+            if (usuario == null)
+            {
+                TempData["Error"] = "No se encontró el usuario";
+                return RedirectToAction("Index", "Home");
+            }
             return View(usuario);
         }
 
@@ -283,6 +371,7 @@ namespace inmobiliaria.Controllers
                     {
                         ModelState.AddModelError("", "El email o la clave no son correctas");
                         TempData["returnUrl"] = returnUrl;
+                        ViewBag.Error = "El email o la clave no son correctas";
                         return View();
                     }
                     var claims = new List<Claim>
