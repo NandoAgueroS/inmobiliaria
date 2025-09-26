@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 namespace inmobiliaria.Controllers
 {
+    [Authorize]
     public class UsuariosController : Controller
     {
         private readonly IConfiguration configuration;
@@ -29,8 +30,7 @@ namespace inmobiliaria.Controllers
             return View(usuario);
         }
 
-        /// [Authorize(Policy = "Administrador")]
-
+        [Authorize(Policy = "Administrador")]
         public IActionResult Index()
         {
             ViewBag.ControllerName = "Usuarios";
@@ -44,21 +44,7 @@ namespace inmobiliaria.Controllers
             return View(usuarios);
         }
 
-
-
-        /// [Authorize(Policy = "Administrador")]
-
-        public IActionResult Detalles(int id)
-        {
-            var usuario = repositorioUsuario.BuscarPorId(id);
-            return View(usuario);
-
-
-        }
-
-
-
-        /////////////// [Authorize(Policy = "Adminitrador")]
+        [Authorize(Policy = "Adminitrador")]
         public IActionResult Crear(Usuario usuario)
         {
             if (!ModelState.IsValid)
@@ -234,7 +220,6 @@ namespace inmobiliaria.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<ActionResult> EditarPerfil(Usuario usuario)
         {
             try
@@ -242,7 +227,8 @@ namespace inmobiliaria.Controllers
 
                 Usuario usuarioOriginal = repositorioUsuario.BuscarPorId(usuario.Id.Value);
                 string mailViejo = usuarioOriginal.Email;
-                if (usuarioOriginal != null) {
+                if (usuarioOriginal != null)
+                {
                     usuarioOriginal.Nombre = usuario.Nombre;
                     usuarioOriginal.Apellido = usuario.Apellido;
                     usuarioOriginal.Email = usuario.Email;
@@ -272,7 +258,6 @@ namespace inmobiliaria.Controllers
             }
         }
 
-        [Authorize]
         public IActionResult Perfil(int id)
         {
             // var usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
@@ -288,11 +273,16 @@ namespace inmobiliaria.Controllers
                 TempData["Error"] = "No se encontró el usuario";
                 return RedirectToAction("Index", "Home");
             }
+            if (id != int.Parse(User.FindFirst("IdUsuario").Value) && !User.IsInRole("Administrador"))
+            {
+                TempData["Error"] = "No se puede editar a otros usuarios";
+                return RedirectToAction("Index", "Home");
+            }
             return View(usuario);
         }
 
 
-        ////// [Authorize(Policy = "Administrador")]
+        [Authorize(Policy = "Administrador")]
         public IActionResult Formulario(int id)
         {
             ViewBag.Roles = Usuario.ObtenerRoles();
@@ -329,7 +319,6 @@ namespace inmobiliaria.Controllers
             }
         }
 
-        [Authorize]
         public IActionResult Avatar()
         {
             var usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
@@ -344,6 +333,7 @@ namespace inmobiliaria.Controllers
 
 
         }
+        [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
             TempData["returnUrl"] = returnUrl;
@@ -351,6 +341,7 @@ namespace inmobiliaria.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(UsuarioDTO userDTO)
         {
             try

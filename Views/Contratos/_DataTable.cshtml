@@ -10,13 +10,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
+                Inquilno
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IdInmueble)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Monto)
+                @Html.DisplayNameFor(model => model.Inmueble.Direccion)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.FechaDesde)
@@ -24,6 +21,15 @@
             <th>
                 @Html.DisplayNameFor(model => model.FechaHasta)
             </th>
+            @if(User.IsInRole("Administrador")){
+
+            <th>
+                @Html.DisplayNameFor(model => model.CreadoPor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AnuladoPor)
+            </th>
+        }
             <th>Acción</th>
         </tr>
     </thead>
@@ -31,9 +37,6 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Monto)
-                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Inquilino.Nombre) @Html.DisplayFor(modelItem => item.Inquilino.Apellido)
                 </td>
@@ -46,17 +49,27 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.FechaHasta)
                 </td>
+            @if(User.IsInRole("Administrador")){
+
+            <th>
+                @Html.DisplayFor(model => item.CreadoPor)
+            </th>
+            <th>
+                @Html.DisplayFor(model => item.AnuladoPor)
+            </th>
+        }
                 <div class="btn-group" role="group">
                     <td>
                         <a class="btn btn-warning" asp-controller="Contratos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
                         <a class="btn btn-warning" asp-controller="Pagos" asp-action="Formulario" asp-route-idContrato="@item.Id">Crear Pago</a>
-                        <a class="btn btn-danger" asp-controller="Contratos" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
                         <button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
                           Detalle
                         </button>
+                @if(User.IsInRole("Administrador")){
                         <button type="button" class="btn btn-primary" onclick="cancelarModal(@item.Id)">
                          Cancelar 
-                        </button>
+            </button>
+            }
                         <button type="button" class="btn btn-primary" onclick="renovarModal(@item.Id)">
                         Renovar
                         </button>

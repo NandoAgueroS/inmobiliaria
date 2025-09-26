@@ -24,13 +24,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Usuarios/Login";
         options.LogoutPath = "/Usuarios/Logout";
-        options.AccessDeniedPath = "/Home/Restringido";
+        options.AccessDeniedPath = "/Home";
 
     });
 builder.Services.AddAuthorization(options =>
 {
-	options.AddPolicy("Administrador", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador"));
-	
+    options.AddPolicy("Administrador", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador"));
 });
 
 var app = builder.Build();

@@ -120,68 +120,57 @@ namespace inmobiliaria.Controllers
 
         public IActionResult _CancelarModal(int id)
         {
-            Contrato contrato = repositorioContrato.BuscarPorId(id);
-            Pago ultimoPago = repositorioPago.BuscarUltimoPago(id);
+            try
+            {
+                Contrato contrato = repositorioContrato.BuscarPorId(id);
+                int mesesPagados = repositorioPago.ContarPagosMensuales(id);
+                DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Today);
+                int mesesTranscurridos = (fechaActual.Year - contrato.FechaDesde.Year) * 12 + fechaActual.Month - contrato.FechaDesde.Month;
+                int mesesImpagos = mesesTranscurridos - mesesPagados;
+                mesesImpagos = mesesImpagos < 0 ? 0 : mesesImpagos;
 
-            int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
-            int mesesPagados = repositorioPago.ContarPagosMensuales(id) > 0 ? repositorioPago.ContarPagosMensuales(id) : 0;
-
-            DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Today);
-            int mesesTranscurridos = (fechaActual.Year - contrato.FechaDesde.Year) * 12 + fechaActual.Month - contrato.FechaDesde.Month;
-            int mesesImpagos = mesesTranscurridos - mesesPagados;
-            mesesImpagos = mesesPagados < 0 ? 0 : mesesPagados;
-            int mesesRestantes = (contrato.FechaHasta.Year - fechaActual.Year) * 12 + contrato.FechaHasta.Month - fechaActual.Month;
-            decimal multa;
-            if ((mesesTotales / 2) < mesesRestantes)
-            {
-                multa = contrato.Monto * 2;
-            }
-            else
-            {
-                multa = contrato.Monto;
-            }
-            /*mete todos los datos en view bags*/
-            bool multaPagada = repositorioPago.BuscarMulta(id);
-            if (!multaPagada)
-            {
-
-                ViewBag.Multa = multa;
-                TempData["Multa"] = multa.ToString();
-                TempData["DesdeMulta"] = true;
-            }
-            ViewBag.IdContrato = id;
-            if (mesesImpagos > 0)
-            {
+                decimal multa = 0;
+                bool multaPagada = repositorioPago.BuscarMulta(id);
+                if (!multaPagada)
+                {
+                    int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
+                    int mesesRestantes = (contrato.FechaHasta.Year - fechaActual.Year) * 12 + contrato.FechaHasta.Month - fechaActual.Month;
+                    if ((mesesTotales / 2) < mesesRestantes)
+                    {
+                        multa = contrato.Monto * 2;
+                    }
+                    else
+                    {
+                        multa = contrato.Monto;
+                    }
+                    TempData["Multa"] = multa.ToString();
+                }
+                ViewBag.PuedeCancelar = (mesesImpagos == 0 && multaPagada);
                 ViewBag.MesesImpagos = mesesImpagos;
-                TempData["MesesImpagos"] = mesesImpagos;
-                ViewBag.MesesRestantes = mesesRestantes;
-
+                ViewBag.Multa = multa;
+                ViewBag.IdContrato = id;
+                var dto = new CancelarContratoDTO
+                {
+                    IdContrato = id,
+                    FechaCancelacion = DateOnly.FromDateTime(DateTime.Today)
+                };
+                return PartialView(dto);
             }
-            ViewBag.MesesTotales = mesesTotales;
-            ViewBag.MesesTranscurridos = mesesTranscurridos;
-
-            return PartialView();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Content($"<div class='alert alert-danger'>Error al calcular los datos de cancelación: {ex.Message}</div>");
+            }
         }
 
         [Authorize(Policy = "Administrador")]
-        public IActionResult Eliminar(int id)
+        [HttpPost]
+        public IActionResult Eliminar(CancelarContratoDTO dto)
         {
+            int id = dto.IdContrato;
             try
             {
-                Pago ultimoPago = repositorioPago.BuscarUltimoPago(id);
-                if (ultimoPago != null && ultimoPago.Contrato != null && ultimoPago.CorrespondeAMes != null)
-                {
-                    Contrato contrato = ultimoPago.Contrato;
-
-                    DateOnly fechaUltimoPago = ultimoPago.CorrespondeAMes.Value;
-                    int mesesRestantes = ((contrato.FechaHasta.Year - fechaUltimoPago.Year) * 12 + contrato.FechaHasta.Month - fechaUltimoPago.Month);
-                    if (fechaUltimoPago.Month != DateOnly.FromDateTime(DateTime.Today).Month
-                        && fechaUltimoPago.Year != DateOnly.FromDateTime(DateTime.Today).Year)
-                    {
-                        TempData["Error"] = "No se puede cancelar el contrato, tiene pagos pendientes";
-                    }
-                }
-                repositorioContrato.Baja(id, int.Parse(User.FindFirst("Id").Value));
+                repositorioContrato.Baja(id, int.Parse(User.FindFirst("IdUsuario").Value), dto.FechaCancelacion);
                 TempData["Accion"] = Accion.Baja.value;
                 TempData["Id"] = id;
 
@@ -201,6 +190,7 @@ namespace inmobiliaria.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
         [Authorize(Policy = "Administrador")]
         public IActionResult Reactivar(int id)
         {

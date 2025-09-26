@@ -34,7 +34,7 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@Direccion", p.Direccion);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
-                    p.Id=res;
+                    p.Id = res;
                     connection.Close();
                 }
                 return res;
@@ -182,7 +182,7 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
-         public int Reactivar(int id)
+        public int Reactivar(int id)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -199,6 +199,7 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
+        
 
     }
 } 

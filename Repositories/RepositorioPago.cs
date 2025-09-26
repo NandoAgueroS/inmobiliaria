@@ -282,7 +282,7 @@ namespace inmobiliaria.Repositories
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato WHERE p.Estado = true";
+                string query = $@"SELECT * FROM Pagos p JOIN Contratos c ON p.IdContrato = c.IdContrato";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -301,6 +301,9 @@ namespace inmobiliaria.Repositories
                             Monto = reader.GetDecimal(nameof(Pago.Monto)),
                             Fecha = DateOnly.FromDateTime(reader.GetDateTime(nameof(Pago.Fecha))),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                            Estado = reader.GetBoolean(nameof(Pago.Estado)),
+                            CreadoPor = reader.GetInt32(nameof(Pago.CreadoPor)),
+                            AnuladoPor = reader.IsDBNull(reader.GetOrdinal(nameof(Pago.AnuladoPor))) ? null : reader.GetInt32(nameof(Pago.AnuladoPor)),
 
                             Contrato = new Contrato
                             {
@@ -561,7 +564,7 @@ namespace inmobiliaria.Repositories
             bool res = false;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM `Pagos` WHERE IdContrato = @IdContrato AND Concepto ='Multa';";
+                string query = $@"SELECT * FROM Pagos WHERE IdContrato = @IdContrato AND Concepto ='Multa';";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@IdContrato", idContrato);
@@ -577,4 +580,3 @@ namespace inmobiliaria.Repositories
         }
     }
 }
-

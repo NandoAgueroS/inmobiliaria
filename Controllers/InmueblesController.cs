@@ -242,17 +242,17 @@ namespace inmobiliaria.Controllers
             try
             {
                 IList<Inmueble> inmuebles = new List<Inmueble>();
-                if (disponibles == null)
+                if (disponibles != null)
                 {
-                    inmuebles = repositorioInmueble.ListarTodos();
+                    inmuebles = repositorioInmueble.ListarPorDisponible(disponibles.Value);
                 }
                 else if (fechaDesde != null && fechaHasta != null)
                 {
-                    inmuebles = repositorioInmueble.ListarDesocupados(fechaDesde.Value, fechaHasta.Value, disponibles.Value);
+                    inmuebles = repositorioInmueble.ListarDesocupados(fechaDesde.Value, fechaHasta.Value);
                 }
                 else
                 {
-                    inmuebles = repositorioInmueble.ListarPorDisponible(disponibles.Value);
+                    inmuebles = repositorioInmueble.ListarTodos();
                 }
                 return Ok(inmuebles);
             }

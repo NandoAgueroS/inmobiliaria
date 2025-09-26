@@ -1,8 +1,6 @@
-@using inmobiliaria.Models
 @model IEnumerable<inmobiliaria.Models.Inmueble>
 @{
     ViewData["Title"] = "Listado de Inmuebles";
-    Propietario propietario = ViewBag.Propietario;
 }
 
 <div class="text-center">
@@ -17,22 +15,22 @@
   </div>
   <div>
     <div>
-    <select  id="IdPropietario" style="width: 300px;">
-      @if(propietario != null)
-      {
-        <option selected value="@propietario.Id">@propietario.Nombre @propietario.Apellido (@propietario.Dni)</option>
-      }
-    </select>
     </div>
     <div class="d-flex flex-row">
-    
-      <label class="form-check">Disponibles</label>
-      <input class="form-check-input" type="checkbox" id="filtro-disponibles">
+    <select id="select-filtros">
+      <option value=1>Disponbles</option>
+      <option value=2>No disponibles</option>
+      <option value=3>Disponbles por fecha</option>
+    </select>
+        <div id="filtro-periodo" class="d-none">
+          
       <label class="form-control">Periodo</label>
-      <label class="form-control">fecha inicio</label><br>
+      <label class="form-control">fecha inicio</label>
       <input class="form-control" type="date" id="filtro-periodo-desde">
       <label class="form-control">fecha desde</label>
       <input class="form-control" type="date" id="filtro-periodo-hasta">
+        </div>
+        <button class="btn btn-primary" id="btn-filtrar" onclick="filtrar()">Filtrar</button>
     </div>
   </div>
 </div>
@@ -106,37 +104,8 @@
   </div>
 </div>
 @section Scripts{
-   
-
-
-     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-    $('#IdPropietario').select2(
-        {
-            placeholder: "Seleccione un propietario",
-            ajax: {
-                url: '/Propietarios/Buscar',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        nombre: params.term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                            results: data.map(element => {
-                            return { id: element.id, text: element.nombre + ' ' + element.apellido}
-                        })
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 3,
-        }
-    )
-    function cargarModal(item){
+    function cargarDatos(item){
 
     const datos = fetch('/Inmuebles/BuscarPorId/' + item)
     .then(response => response.json())
@@ -188,17 +157,36 @@ document.getElementById('guardar-tipo').addEventListener('click', () => {
 let filtroDisponibles = document.getElementById('filtro-disponibles');
 const fechaDesde = document.getElementById('filtro-periodo-desde');
 const fechaHasta = document.getElementById('filtro-periodo-hasta');
-
-    fechaDesde.addEventListener('change', ()=>{
-      if (fechaDesde.value && fechaHasta.value){
-        cargarContInmueble(null, filtroDisponibles.checked, fechaDesde.value,fechaHasta.value)
+const selectFiltros = document.getElementById('select-filtros');
+const filtroPeriodo = document.getElementById('filtro-periodo');
+selectFiltros.addEventListener('change', (e) => {
+      if(e.target.value == 3){
+          filtroPeriodo.classList.remove('d-none');
+      }else{
+        filtroPeriodo.classList.add('d-none');
       }
     })
-    fechaHasta.addEventListener('change', ()=>{
-      if (fechaDesde.value && fechaHasta.value){
-        cargarContInmueble(null, filtroDisponibles.checked, fechaDesde.value,fechaHasta.value)
+function filtrar(){
+const option = selectFiltros.value;
+let url = "/Inmuebles/Listar";
+      switch(option){
+        case "1":
+          url = url + "?disponibles=true";
+          break;
+        case "2":
+          url = url + "?disponibles=false";
+          break;
+        case "3":
+          url = url + "?disponibles=true&fechaDesde="+fechaDesde.value + "&fechaHasta"+fechaHasta.value
+          break;
       }
-    })
+      fetch(url)
+      .then(response => response.json())
+      .then(data => {
+          cargarInmuebles(data);
+      })
+      .catch(error => console.error(error))
+    }
 function cargarInmuebles(inmuebles) {
     const inmueblesContainer = document.getElementById('inmuebles-container');
       inmueblesContainer.innerHTML = '';
@@ -216,7 +204,9 @@ function cargarInmuebles(inmuebles) {
           <div class="btn-group" role="group">
                     
             <a class="btn btn-warning" href=/Inmuebles/Formulario/${item.id}>Editar</a>
+          @if(User.IsInRole("Administrador")){
             <a class="btn btn-danger" href=/Inmuebles/Formulario/${item.id}>Eliminar</a>
+          }
           </div>
 <button type="button" class="btn btn-primary" onclick="cargarDatos(${item.id})">
   Detalle
@@ -226,36 +216,5 @@ function cargarInmuebles(inmuebles) {
         `
       });}
 
-document.getElementById('filtro-disponibles').addEventListener('change', () => {
-cargarContInmueble(null, filtroDisponibles.checked, fechaDesde.value, fechaHasta.value);
-      });
-    ///listar(filtroDisponibles.checked);
-
-
-    const contenedorInmueble = document.getElementById('inmuebles-container');
-   function cargarContInmueble(id="", disponibles, fechaDesde, fechaHasta){
-            const params = { id, disponibles, fechaDesde, fechaHasta};
-              fetch("/Inmuebles/_CardInmueble?" + "idPropietario="+id+"&disponibles="+disponibles+"&fechaDesde="+fechaDesde+"&fechaHasta="+fechaHasta)
-              .then(response => response.text())
-              .then(data =>{
-                contenedorInmueble.innerHTML= data
-              
-              })
-              .catch(error=>{
-                console.error(error)
-                toastr.error('Error al cargar los inmuebles');
-              }) 
-
-            }
-            cargarContInmueble(document.getElementById("IdPropietario").value || "" )
-           $("#IdPropietario").on("change",(e)=>
-           {
-             if(e.target.value != "")
-
-             {
-              cargarContInmueble(e.target.value)
-              }
-
-           })
     </script>
     }

@@ -33,6 +33,15 @@
             <th>
                 @Html.DisplayNameFor(model => model.CorrespondeAMes)
             </th>
+        @if(User.IsInRole("Administrador"))
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.CreadoPor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AnuladoPor)
+            </th>
+        }
             <th>Acción</th>
         </tr>
     </thead>
@@ -97,9 +106,18 @@
         <td>${p.idContrato ?? ''}</td>
         <td>${p.fecha}</td>
         <td>${p.correspondeAMes}</td>
+        
+        @if(User.IsInRole("Administrador"))
+        {
+        <td>${p.creadoPor}</td>
+        <td>${p.anuladoPor}</td>
+        }
         <td>
-          <a class="btn btn-danger btn-sm" href="/Pagos/Eliminar/${p.Id}">Eliminar</a>
 
+        @if(User.IsInRole("Administrador"))
+        {
+          <a class="btn btn-danger btn-sm" href="/Pagos/Eliminar/${p.Id}">Eliminar</a>
+}
           <button type="button" class="btn btn-primary btn-sm" onclick="cargarDatos(${p.Id})">
             Detalle
           </button>
@@ -110,7 +128,10 @@
 
 
   function cargarPagos(idInquilino) {
-    fetch("/Pagos/Listar?idInquilino=" + (idInquilino == undefined ? "" : idInquilino))
+    let url = "/Pagos/Listar";
+    if (idInquilino)
+      url += "?idInquilino=" + idInquilino;
+    fetch(url)
       .then(res => {
         if (!res.ok) throw new Error('Error al obtener pagos: ' + res.status);
         return res.json();
@@ -148,5 +169,6 @@
                 toastr.error('No se pudieron cargar los detalles del contrato');
                 });
         }
+        cargarPagos();
     </script>
     }

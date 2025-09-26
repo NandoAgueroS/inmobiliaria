@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace inmobiliaria.Models
 {
-
+   
     public class Pago
     {
         public int? Id { get; set; }
@@ -26,6 +25,7 @@ namespace inmobiliaria.Models
 
         public Contrato? Contrato { get; set; }
 
+        [DataType(DataType.Date)]
         public DateOnly? CorrespondeAMes { get; set; }
 
         public int CreadoPor { get; set; }

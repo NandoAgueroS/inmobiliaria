@@ -69,35 +69,25 @@ namespace inmobiliaria.Controllers
                 if (idContrato == 0)
                 {
                     ViewBag.Error = "Error al cargar la vista de pago";
-                    return View(nameof(Index));
+                    return RedirectToAction(nameof(Index));
                 }
                 else
                 {
                     int numeroPago = repositorioPago.ObtenerUltimoNumeroPago(idContrato);
-                    numeroPago = numeroPago == -1 ? 0 : numeroPago;
-                    numeroPago++;
+                    numeroPago = (numeroPago == -1 ? 0 : numeroPago) + 1;
+
                     Pago pago = new Pago
                     {
                         NumeroPago = numeroPago.ToString(),
                         IdContrato = idContrato
                     };
-                    if (TempData["DesdeMulta"] != null)
+
+                    if (TempData["Multa"] is string multaStr && Decimal.TryParse(multaStr, out decimal multa))
                     {
-                        // Pago ultimoPago = repositorioPago.BuscarUltimoPago(idContrato);
-                        // DateOnly fechaUltimoPago = ultimoPago.CorrespondeAMes.Value;
-
-                        // int mesesTotales = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12 + contrato.FechaHasta.Month - contrato.FechaDesde.Month);
-                        // int mesesPagados = repositorioPago.ContarPagosMensuales(idContrato);
-
-                        // int mesesImpagos = mesesTotales - mesesPagados;
-                        // decimal total = Decimal.Parse((String)TempData["Multa"]) + (int)TempData["MesesImpagos"] * contrato.Monto;
-
-
-                        pago.Monto = Decimal.Parse(TempData["Multa"] as String);
+                        pago.Monto = multa;
                         pago.Concepto = "Multa";
+                        ViewBag.EsMulta = true;
                     }
-                    ;
-
 
                     return View(pago);
                 }

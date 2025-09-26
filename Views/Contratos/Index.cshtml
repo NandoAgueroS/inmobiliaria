@@ -86,7 +86,7 @@
 				$(id).modal("show");
 			}
 			if (!modalRenovacion) {
-          fetch("/Contratos/RenovarModal/" + id)
+          fetch("/Contratos/_RenovarModal/" + id)
               .then(response => response.text())
 				.then(data => {
 					console.log("Modal: ", data);
@@ -101,25 +101,6 @@
 			} else {
 					abrirModal("#modal_renovacion");
 			}
-        }
-        function renovarContrato(){
-          fetch("/Contratos/Renovar/" + idContrato, {
-            method: "POST",
-            body: {
-              monto: document.getElementById('nuevo_monto').value,
-              fechaDesde: document.getElementById('fecha_desde').value,
-              fechaHasta: document.getElementById('fecha_hasta').value
-            }
-          })
-            .then( ()=> {
-              toastr.success('El contrato ha sido renovado')
-              location.reload()
-            }
-            )
-          .catch(error => {
-            console.error('Error:', error)
-            toastr.error('No se pudo renovar el contrato');
-          });
         }
 
         function agregarListenerModal(){

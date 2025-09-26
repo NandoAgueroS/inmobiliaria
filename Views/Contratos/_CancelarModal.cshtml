@@ -1,36 +1,47 @@
 @model inmobiliaria.Models.CancelarContratoDTO
+
 <div class="modal fade" id="modal_cancelacion" tabindex="-1" aria-labelledby="cancelacionModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="cancelacionModalLabel">Detalles del contrato</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        @if(ViewBag.Multa != null && ViewBag.Multa > 0){
-
-        <p>Multa @ViewBag.Multa</p>
-          <a class="btn btn-primary" asp-controller="Pagos" asp-action="Formulario" asp-route-idContrato="@ViewBag.IdContrato">Pagar multa</a>
-        }
-        @if (ViewBag.MesesImpagos !=null && ViewBag.MesesImpagos > 0){
-
-          <p>Tiene @ViewBag.MesesImpagos meses impagos, paguelos antes de cancelar el contrato</p>
-        }
-        <p>Meses @ViewBag.MesesTranscurridos / @ViewBag.MesesTotales (Meses transcurridos completamente / Totales)</p>
-        @if((ViewBag.Multa == null || ViewBag.Multa == 0) && (ViewBag.MesesImpagos == null || ViewBag.MesesImpagos == 0)){
-        <form asp-controller="Contratos" asp-action="Cancelar" asp-route-id="@ViewBag.IdContrato" method="post">
-          <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="date" id="fecha_cancelacion" class="form-control" asp-for="FechaCancelacion">
-          <input type="hidden" asp-for="IdContrato">
-          <span asp-validation-for="FechaCancelacion" class="text-danger" ></span>
-          <button type="submit" class="btn btn-primary">Terminar contrato</button>
-          </form>
-
-        }
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
+      <form asp-controller="Contratos" asp-action="Eliminar" method="post">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="cancelacionModalLabel">Cancelar Contrato</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" asp-for="IdContrato" />
+          @if (ViewBag.PuedeCancelar == true)
+          {
+              <p>El contrato está al día y no tiene multas pendientes.</p>
+              <div class="form-group">
+                  <label asp-for="FechaCancelacion" class="control-label">Fecha de finalización del contrato</label>
+                  <input asp-for="FechaCancelacion" class="form-control" type="date" />
+                  <span asp-validation-for="FechaCancelacion" class="text-danger"></span>
+              </div>
+          }
+          else
+          {
+              <div class="alert alert-warning">
+                  <p>No se puede cancelar el contrato debido a las siguientes deudas:</p>
+                  <ul>
+                      @if (ViewBag.MesesImpagos > 0) {
+                          <li>Tiene <strong>@ViewBag.MesesImpagos</strong> mes(es) impago(s).</li>
+                      }
+                      @if (ViewBag.Multa > 0) {
+                          <li>Tiene una multa de <strong>@ViewBag.Multa.ToString("C")</strong> por cancelación anticipada.</li>
+                      }
+                  </ul>
+                  <a class="btn btn-primary mt-2" asp-controller="Pagos" asp-action="Formulario" asp-route-idContrato="@ViewBag.IdContrato">Ir a Pagar</a>
+              </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          @if (ViewBag.PuedeCancelar == true) {
+              <button type="submit" class="btn btn-danger">Confirmar Cancelación</button>
+          }
+        </div>
+      </form>
     </div>
   </div>
 </div>

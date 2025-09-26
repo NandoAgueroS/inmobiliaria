@@ -48,17 +48,18 @@ namespace inmobiliaria.Repositories
             return res;
         }
 
-        public int Baja(int id, int anuladoPor)
+        public int Baja(int id, int anuladoPor, DateOnly fechaTerminado)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"UPDATE Contratos SET {nameof(Contrato.Estado)} = false, {nameof(Contrato.AnuladoPor)} = @AnuladoPor WHERE IdContrato = @Id";
+                string query = $@"UPDATE Contratos SET {nameof(Contrato.Estado)} = false, {nameof(Contrato.AnuladoPor)} = @AnuladoPor, {nameof(Contrato.FechaAnulado)} = @FechaTerminado WHERE IdContrato = @Id";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
                     command.Parameters.AddWithValue("@AnuladoPor", anuladoPor);
+                    command.Parameters.AddWithValue("@FechaTerminado", fechaTerminado.ToString("yyyy-MM-dd"));
                     connection.Open();
                     res = command.ExecuteNonQuery();
                     connection.Close();
@@ -103,7 +104,7 @@ namespace inmobiliaria.Repositories
             IList<Contrato> res = new List<Contrato>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Contratos c JOIN Inmuebles im ON c.IdInmueble = im.IdInmueble JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino  WHERE c.Estado = true;";
+                string query = $@"SELECT * FROM Contratos c JOIN Inmuebles im ON c.IdInmueble = im.IdInmueble JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino;";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -165,7 +166,7 @@ namespace inmobiliaria.Repositories
                 JOIN Inmuebles im ON c.IdInmueble = im.IdInmueble 
                 JOIN Tipos t ON t.IdTipo = im.IdTipo 
                 JOIN Propietarios p ON im.IdPropietario = p.IdPropietario
-                WHERE c.IdContrato = @Id AND c.Estado = true";
+                WHERE c.IdContrato = @Id";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {

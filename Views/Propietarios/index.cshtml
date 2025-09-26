@@ -27,7 +27,10 @@
             <td>
                 <div class="class="btn-group" role="group"">
                         <a class="btn btn-warning"  asp-controller="Propietarios" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
+            @if(User.IsInRole("Administrador")){
+
 						<a class="btn btn-danger" asp-controller="Propietarios" asp-action="Eliminar" asp-route-id="@item.Id" >Eliminar</a>
+            }
             <a class="btn btn-success" asp-controller="Inmuebles" asp-action="Index" asp-route-idPropietario="@item.Id" >Ver Inmuebles</a>
                         <button type="button" class="btn btn-primary" onclick="cargarDatos(@item.Id)">
                           Detalle
