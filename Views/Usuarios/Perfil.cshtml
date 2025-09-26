@@ -14,11 +14,11 @@
                     <a href="#" data-bs-toggle="modal" data-bs-target="#avatarModal" title="Cambiar avatar">
                         @if (!string.IsNullOrEmpty(Model.Avatar))
                         {
-                            <img src="@Url.Content(Model.Avatar)" alt="Avatar" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
+                            <img src="@Url.Content(Model.Avatar)" alt="Avatar" loading="eager" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
                         }
                         else
                         {
-                            <img src="@Url.Content("~/images/default-avatar.png")" alt="Avatar por defecto" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
+                            <img src="https://ui-avatars.com/api/?name=@Model.Nombre&background=00ff73&color=fff&size=32" alt="Avatar por defecto" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
                         }
                     </a>
                     <a href="#" data-bs-toggle="modal" data-bs-target="#avatarModal" title="Cambiar avatar"> Cambiar Avatar
@@ -65,6 +65,25 @@
                                 <input class="form-control" asp-for="Email">
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
+                            @if(User.IsInRole("Administrador"))
+                            {
+                                <div class="form-group">
+                              <label class="control-label">Rol</label>
+                              <select class="form-control" asp-for="Rol">
+                                @foreach (var kvp in (IDictionary<int, string>)ViewBag.Roles)
+                                {
+                                  
+                    @if (Model.RolNombre == kvp.Value){
+
+                                  <option selected value="@kvp.Key">@kvp.Value</option>
+                    }else{
+
+                                  <option value="@kvp.Key">@kvp.Value</option>
+                    }
+                                }
+                              </select>
+                            </div>
+                            }
                         </div>
                         <hr>
                         <button type="submit" class="btn btn-primary">Guardar Datos</button>
@@ -90,7 +109,7 @@
                         <label for="AvatarFile" class="control-label">Seleccionar nueva imagen</label>
                         <input type="file" name="AvatarFile" class="form-control" required />
                     </div>
-                    @* <input type="hidden" asp-for="Id"> *@
+                    <input type="hidden" asp-for="Id">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

@@ -106,7 +106,6 @@ namespace inmobiliaria.Controllers
                         return RedirectToAction(nameof(Perfil));
                     }
 
-                    // 1. Eliminar avatar anterior si existe
                     if (!string.IsNullOrEmpty(usuario.Avatar))
                     {
                         var rutaAntigua = Path.Combine(environment.WebRootPath, usuario.Avatar.TrimStart('/'));
@@ -116,7 +115,6 @@ namespace inmobiliaria.Controllers
                         }
                     }
 
-                    // 2. Guardar nuevo avatar
                     string wwwPath = environment.WebRootPath;
                     string path = Path.Combine(wwwPath, "uploads");
                     if (!Directory.Exists(path))
@@ -132,8 +130,6 @@ namespace inmobiliaria.Controllers
                         usuarioConAvatar.AvatarFile.CopyTo(stream);
                     }
                     repositorioUsuario.Modificacion(usuario);
-
-                    // 3. Actualizar el claim del avatar si el usuario es el que está logueado
                     if (User.Identity.Name == usuario.Email)
                     {
                         var claims = new List<Claim>
@@ -148,8 +144,12 @@ namespace inmobiliaria.Controllers
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
                     }
 
+
                     TempData["Accion"] = Accion.Modificacion.value;
-                    return RedirectToAction(nameof(Perfil));
+                    if (User.Identity.Name == usuario.Email)
+                        return RedirectToAction(nameof(Perfil));
+                    else
+                        return RedirectToAction(nameof(Perfil), new { Id = usuarioConAvatar.Id.Value });
                 }
                 catch (Exception ex)
                 {
@@ -261,22 +261,25 @@ namespace inmobiliaria.Controllers
         public IActionResult Perfil(int id)
         {
             // var usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
+            ViewBag.Roles = Usuario.ObtenerRoles();
             if (TempData.ContainsKey("Error"))
                 ViewBag.Error = TempData["Error"];
             Usuario usuario;
             if (id == 0)
                 usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
             else
+            {
                 usuario = repositorioUsuario.BuscarPorId(id);
-            if (usuario == null)
-            {
-                TempData["Error"] = "No se encontró el usuario";
-                return RedirectToAction("Index", "Home");
-            }
-            if (id != int.Parse(User.FindFirst("IdUsuario").Value) && !User.IsInRole("Administrador"))
-            {
-                TempData["Error"] = "No se puede editar a otros usuarios";
-                return RedirectToAction("Index", "Home");
+                if (usuario == null)
+                {
+                    TempData["Error"] = "No se encontró el usuario";
+                    return RedirectToAction("Index", "Home");
+                }
+                if (id != int.Parse(User.FindFirst("IdUsuario").Value) && !User.IsInRole("Administrador"))
+                {
+                    TempData["Error"] = "No se puede editar a otros usuarios";
+                    return RedirectToAction("Index", "Home");
+                }
             }
             return View(usuario);
         }
@@ -298,7 +301,7 @@ namespace inmobiliaria.Controllers
 
 
 
-        public ActionResult EliminarAvatar(int id)
+        public async Task<ActionResult> EliminarAvatar(int id)
         {
             var ruta = Path.Combine(environment.WebRootPath, "uploads", $"avatar_{id}" + Path.GetExtension(User.FindFirst("Avatar").Value));
             if (System.IO.File.Exists(ruta))
@@ -306,8 +309,21 @@ namespace inmobiliaria.Controllers
             Usuario usuario = repositorioUsuario.BuscarPorId(id);
             usuario.Avatar = "";
             repositorioUsuario.Modificacion(usuario);
+            if (User.Identity.Name == usuario.Email)
+            {
+                var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, usuario.Email),
+                            new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
+                            new Claim(ClaimTypes.Role, usuario.RolNombre),
+                            new Claim("Avatar", usuario.Avatar ?? ""),
+                            new Claim("IdUsuario", usuario.Id.Value.ToString()),
+                        };
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            }
 
-                return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index));
         }
         [Authorize(Policy = "Administrador")]
         public IActionResult Eliminar(int id)

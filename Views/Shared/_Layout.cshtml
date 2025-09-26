@@ -57,7 +57,7 @@
 
             @{var avatar = User.FindFirst("Avatar")?.Value;
             var avatarUrl = string.IsNullOrEmpty(avatar)
-                ? Url.Content("~/images/default-avatar.png")
+                ? "https://ui-avatars.com/api/?name=" + User.FindFirst("FullName").Value+"Nombre&background=00ff73&color=fff&size=32"
                 : avatar;}
 
         <img src="@(avatarUrl)" alt="Avatar" class="rounded-circle img-fluid"
