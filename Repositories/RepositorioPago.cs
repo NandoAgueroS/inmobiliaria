@@ -33,7 +33,7 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@Fecha", m.Fecha.ToString("yyyy-MM-dd"));
                     command.Parameters.AddWithValue("@CorrespondeAMes", m.CorrespondeAMes == null ? DBNull.Value : m.CorrespondeAMes.Value.ToString("yyyy-MM-dd"));
                     command.Parameters.AddWithValue("@IdContrato", m.IdContrato);
-                     command.Parameters.AddWithValue("@CreadoPor", m.CreadoPor);
+                    command.Parameters.AddWithValue("@CreadoPor", m.CreadoPor);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     m.Id = res;
@@ -527,7 +527,7 @@ namespace inmobiliaria.Repositories
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT NumeroPago FROM `Pagos` WHERE IdContrato = 1 ORDER BY NumeroPago DESC LIMIT 1;";
+                string query = $@"SELECT NumeroPago FROM `Pagos` WHERE IdContrato = @IdContrato ORDER BY NumeroPago DESC LIMIT 1;";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@IdContrato", idContrato);
@@ -551,6 +551,22 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@IdContrato", idContrato);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+        public bool BuscarMulta(int idContrato)
+        {
+             bool res = false;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT  FROM `Pagos` WHERE IdContrato = @IdContrato AND Concepto =Multa;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdContrato", idContrato);
+                    connection.Open();
+                   
                     connection.Close();
                 }
             }

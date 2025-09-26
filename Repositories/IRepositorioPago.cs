@@ -13,5 +13,6 @@ namespace inmobiliaria.Repositories
         public int ContarPagosMensuales(int idContrato);
         public int ObtenerUltimoNumeroPago(int idContrato);
         public int Baja(int id, int anuladoPor);
+        public bool BuscarMulta(int IdPago);
     }
 }
