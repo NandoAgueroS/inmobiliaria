@@ -1,0 +1,44 @@
+@model inmobiliaria.Models.CambiarClaveDTO
+
+@{
+  ViewBag.Title = "Cambiar clave";
+}
+
+<form asp-action="CambiarClave" method="POST">
+    <div class="form-group">
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+      @if(!User.IsInRole("Administrador"))
+      {
+        <div>
+            <label asp-for="Antigua"></label>
+            <input class="form-control" asp-for="Antigua">
+            <span asp-validation-for="Antigua" class="text-danger"></span>
+        </div>
+      }
+        <div>
+            <div>
+            <label asp-for="Nueva"></label>
+            <input class="form-control" asp-for="Nueva">
+            <span asp-validation-for="Nueva" class="text-danger"></span>
+        </div>
+        <div>
+            <div>
+            <label asp-for="NuevaConfirmada"></label>
+            <input class="form-control" asp-for="NuevaConfirmada">
+            <span asp-validation-for="NuevaConfirmada" class="text-danger"></span>
+        </div>
+
+
+        <div>
+            <input type="hidden" asp-for="IdUsuario">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Cambiar</button>
+    </div>
+</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+  
+}

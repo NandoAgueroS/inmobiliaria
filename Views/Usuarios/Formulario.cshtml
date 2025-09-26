@@ -2,9 +2,10 @@
 @{
 
     ViewData["Title"] = Model == null ? "Registrar Usuario" : "Editar Usuario";
+    String action = Model == null ? "Crear" : "Editar";
 
 }
-<form asp-action="Guardar" method="POST" enctype="multipart/form-data">
+<form asp-controller="Usuarios" asp-action="@action" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <div class="text-danger" asp-validation-summary="ModelOnly"></div>
         <div>
@@ -32,7 +33,9 @@
 				<input type="file" name="AvatarFile" />
 				<span asp-validation-for="AvatarFile" class="text-danger"></span>
 			</div>
-            <div class="form-group">
+      @if(User.IsInRole("Administrador"))
+      {
+          <div class="form-group">
 				<label class="control-label">Rol</label>
 				<select class="form-control" asp-for="Rol">
 					@foreach (var kvp in (IDictionary<int, string>)ViewBag.Roles)
@@ -41,6 +44,7 @@
 					}
 				</select>
 			</div>
+      }
 
         <div>
             <input type="hidden" asp-for="Id" >

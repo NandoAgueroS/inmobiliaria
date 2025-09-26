@@ -1,12 +1,12 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using inmobiliaria.Models;
 using inmobiliaria.Repositories;
 using MySql.Data.MySqlClient;
-using System.Collections;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inmobiliaria.Controllers;
 
+[Authorize]
 public class InquilinosController : Controller
 {
     private readonly IRepositorioInquilino repositorioInquilino;
@@ -115,6 +115,7 @@ public class InquilinosController : Controller
         }
     }
 
+    [Authorize(Policy = "Administrador")]
     public IActionResult Eliminar(int id)
     {
         try
@@ -158,25 +159,25 @@ public class InquilinosController : Controller
         IList<Inquilino> inquilinos = repositorioInquilino.BuscarPorNombre(nombre);
         return Json(inquilinos);
     }
-    
+
     public IActionResult BuscarPorId(int id)
+    {
+        try
         {
-            try
-            {
-                Inquilino inquilino = repositorioInquilino.BuscarPorId(id);
-                return Json(inquilino);
-            }
-            catch (MySqlException ex)
-            {
-                Console.WriteLine(ex.ToString());
-
-                return StatusCode(500, "Error en la base de datos");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-
-                return StatusCode(500, "Error general");
-            }
+            Inquilino inquilino = repositorioInquilino.BuscarPorId(id);
+            return Json(inquilino);
         }
+        catch (MySqlException ex)
+        {
+            Console.WriteLine(ex.ToString());
+
+            return StatusCode(500, "Error en la base de datos");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToString());
+
+            return StatusCode(500, "Error general");
+        }
+    }
 }

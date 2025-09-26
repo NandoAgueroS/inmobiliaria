@@ -1,18 +1,12 @@
-using System;
-using System.Configuration;
-using System.Diagnostics;
 using System.Security.Claims;
 using inmobiliaria.Models;
 using inmobiliaria.Repositories;
-using inmobiliaria.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
-using AspNetCoreGeneratedDocument;
 namespace inmobiliaria.Controllers
 {
     public class UsuariosController : Controller
@@ -31,21 +25,28 @@ namespace inmobiliaria.Controllers
 
         public IActionResult PerfilUsuario()
         {
-           Usuario usuario= repositorioUsuario.BuscarPorId(8);
+            Usuario usuario = repositorioUsuario.BuscarPorId(8);
             return View(usuario);
         }
-     
-       /// [Authorize(Policy = "Administrador")]
-       
+
+        /// [Authorize(Policy = "Administrador")]
+
         public IActionResult Index()
         {
+            ViewBag.ControllerName = "Usuarios";
+            if (TempData.ContainsKey("Accion"))
+                ViewBag.Accion = TempData["Accion"];
+            if (TempData.ContainsKey("Id"))
+                ViewBag.Id = TempData["Id"];
+            if (TempData.ContainsKey("Error"))
+                ViewBag.Error = TempData["Error"];
             var usuarios = repositorioUsuario.ListarTodos();
             return View(usuarios);
         }
-    
 
-      
-       /// [Authorize(Policy = "Administrador")]
+
+
+        /// [Authorize(Policy = "Administrador")]
 
         public IActionResult Detalles(int id)
         {
@@ -55,13 +56,13 @@ namespace inmobiliaria.Controllers
 
         }
 
-       
 
-       /////////////// [Authorize(Policy = "Adminitrador")]
-        public IActionResult Guardar(Usuario usuario)
+
+        /////////////// [Authorize(Policy = "Adminitrador")]
+        public IActionResult Crear(Usuario usuario)
         {
             if (!ModelState.IsValid)
-                return View(nameof(Formulario),usuario);
+                return View(nameof(Formulario), usuario);
             try
             {
                 string contraHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
@@ -72,7 +73,6 @@ namespace inmobiliaria.Controllers
                                    numBytesRequested: 256 / 8));
 
                 usuario.Clave = contraHash;
-                usuario.Rol = User.IsInRole("Administrador") ? usuario.Rol : (int)enRoles.Empleado;
                 var identificador = Guid.NewGuid();
                 int res = repositorioUsuario.Alta(usuario);
                 if (usuario.AvatarFile != null && usuario.Id > 0)
@@ -99,32 +99,120 @@ namespace inmobiliaria.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 ViewBag.Roles = Usuario.ObtenerRoles();
-                return View(nameof(Formulario),usuario);
+                return View(nameof(Formulario), usuario);
             }
 
         }
 
+        public ActionResult EditarAvatar(CambiarAvatarDTO cambiarAvatarDTO)
+        {
+            if (cambiarAvatarDTO.AvatarFile != null && cambiarAvatarDTO.IdUsuario > 0)
+            {
+                Usuario usuario = repositorioUsuario.BuscarPorId(cambiarAvatarDTO.IdUsuario);
+                string wwwPath = environment.WebRootPath;
+                string path = Path.Combine(wwwPath, "uploads");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                var ruta = Path.Combine(environment.WebRootPath, "uploads", $"avatar_{usuario.Id}" + Path.GetExtension(User.FindFirst("Avatar").Value));
+                if (System.IO.File.Exists(ruta))
+                    System.IO.File.Delete(ruta);
+                string fileName = "avatar_" + usuario.Id + Path.GetExtension(cambiarAvatarDTO.AvatarFile.FileName);
+                string pathCompleto = Path.Combine(path, fileName);
+                usuario.Avatar = Path.Combine("/uploads", fileName);
 
+                using (FileStream stream = new FileStream(pathCompleto, FileMode.Create))
+                {
+                    usuario.AvatarFile.CopyTo(stream);
+                }
+                repositorioUsuario.Modificacion(usuario);
+                TempData["Accion"] = Accion.Modificacion.value;
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ViewBag.Error = "Ingresó datos inválidos";
+                return View(nameof(EditarAvatar), cambiarAvatarDTO);
+            }
+
+
+        }
+        public ActionResult CambiarClave(int id)
+        {
+            return View(new CambiarClaveDTO { IdUsuario = id });
+        }
+
+        [HttpPost]
+        public ActionResult CambiarClave(CambiarClaveDTO cambiarClaveDTO)
+        {
+            if (!ModelState.IsValid && cambiarClaveDTO.Nueva != cambiarClaveDTO.NuevaConfirmada)
+            {
+                ViewBag.Error = "Ingresó datos incorrectos";
+                return View(nameof(CambiarClave), cambiarClaveDTO);
+            }
+            try
+            {
+                Usuario usuario = repositorioUsuario.BuscarPorId(cambiarClaveDTO.IdUsuario);
+
+                string nuevaHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                                   password: cambiarClaveDTO.Nueva,
+                                   salt: System.Text.Encoding.ASCII.GetBytes(configuration["salt"]),
+                                   prf: KeyDerivationPrf.HMACSHA1,
+                                   iterationCount: 1000,
+                                   numBytesRequested: 256 / 8));
+
+                if (!User.IsInRole("Administrador"))
+                {
+                    string antiguaHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                                      password: cambiarClaveDTO.Antigua,
+                                      salt: System.Text.Encoding.ASCII.GetBytes(configuration["salt"]),
+                                      prf: KeyDerivationPrf.HMACSHA1,
+                                      iterationCount: 1000,
+                                      numBytesRequested: 256 / 8));
+                    if (antiguaHash != usuario.Clave)
+                    {
+                        ViewBag.Error = "Ingresó datos incorrectos";
+                        return View(nameof(CambiarClave), cambiarClaveDTO);
+                    }
+                }
+
+                usuario.Clave = nuevaHash;
+                repositorioUsuario.Modificacion(usuario);
+
+
+                TempData["Accion"] = Accion.Modificacion.value;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                ViewBag.Roles = Usuario.ObtenerRoles();
+                return View(cambiarClaveDTO);
+            }
+
+        }
 
         [Authorize]
         public IActionResult Perfil()
         {
             var usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
             ViewBag.Roles = Usuario.ObtenerRoles();
-            return View( usuario);
+            return View(usuario);
         }
 
 
-       ////// [Authorize(Policy = "Administrador")]
+        ////// [Authorize(Policy = "Administrador")]
         public IActionResult Formulario(int id)
         {
             ViewBag.Roles = Usuario.ObtenerRoles();
-            if(id==0)
+            if (id == 0)
             {
                 return View();
             }
-            
+
             var u = repositorioUsuario.BuscarPorId(id);
             return View(u);
         }
@@ -132,23 +220,24 @@ namespace inmobiliaria.Controllers
 
 
 
-        [HttpPost]
         [Authorize(Policy = "Administrador")]
-        public IActionResult Eliminar(int id, Usuario usuario)
+        public IActionResult Eliminar(int id)
         {
             try
             {
-                var ruta = Path.Combine(environment.WebRootPath, "uploads", $"avatar_{id}" + Path.GetExtension(usuario.Avatar));
+                var ruta = Path.Combine(environment.WebRootPath, "uploads", $"avatar_{id}" + Path.GetExtension(User.FindFirst("Avatar").Value));
                 if (System.IO.File.Exists(ruta))
                     System.IO.File.Delete(ruta);
 
                 repositorioUsuario.Baja(id);
+                TempData["Accion"] = Accion.Baja.value;
 
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                TempData["Error"] = "Ocurrió un error al eliminar";
+                return View(nameof(Index));
             }
         }
 
@@ -167,8 +256,12 @@ namespace inmobiliaria.Controllers
 
 
         }
+        public ActionResult Login(string returnUrl)
+        {
+            TempData["returnUrl"] = returnUrl;
+            return View();
+        }
 
-       
         [HttpPost]
         public async Task<IActionResult> Login(UsuarioDTO userDTO)
         {
@@ -198,6 +291,7 @@ namespace inmobiliaria.Controllers
                         new Claim(ClaimTypes.Name, usuario.Email),
                         new Claim("FullName", usuario.Nombre + usuario.Apellido),
                         new Claim(ClaimTypes.Role, usuario.RolNombre),
+                        new Claim("Avatar", usuario.Avatar),
 
                     };
 
@@ -221,14 +315,13 @@ namespace inmobiliaria.Controllers
             }
         }
 
-        [Route("salir", Name = "logout")]
         public async Task<ActionResult> Logout()
         {
             await HttpContext.SignOutAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
-        
+
 
         [Authorize(Policy = "Administrador")]
         public IActionResult Reactivar(int id)
@@ -258,7 +351,7 @@ namespace inmobiliaria.Controllers
 
         }
 
-    }    
+    }
 
 
 

@@ -43,8 +43,9 @@
                 
                 <div class="btn-group" role="group">
                     <td>
-                        <a class="btn btn-warning" asp-controller="Usuarios" asp-action="Editar" asp-route-id="@item.Id">Editar</a>
+                        <a class="btn btn-warning" asp-controller="Usuarios" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>
                         <a class="btn btn-danger" asp-controller="Usuarios" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
+                        <a class="btn btn-danger" asp-controller="Usuarios" asp-action="CambiarClave" asp-route-id="@item.Id">Cambiar Clave</a>
                         <button class="btn btn-primary" type="button" onclick="cargarDatos(@item.Id)">Detalle</button>
                     </td>
                </div>
