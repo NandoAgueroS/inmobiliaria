@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace inmobiliaria.Models
 {
-   
+
     public class Pago
     {
         public int? Id { get; set; }
@@ -29,9 +29,10 @@ namespace inmobiliaria.Models
         public DateOnly? CorrespondeAMes { get; set; }
 
         public int CreadoPor { get; set; }
-
+        public UsuarioAuditoriaDTO? CreadoPorDTO { get; set; }
 
         public int? AnuladoPor { get; set; }
+        public UsuarioAuditoriaDTO? AnuladoPorDTO { get; set; }
 
         public bool Estado { get; set; }
 

@@ -234,7 +234,21 @@ namespace inmobiliaria.Repositories
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Pagos p WHERE p.idPagos = @id AND estado = true";
+                string query = $@" 
+                                  SELECT p.*, c.*, t.*, im.*,
+                    uc.Nombre AS CreadoPorNombre, uc.Apellido AS CreadoPorApellido, uc.Email AS CreadoPorEmail,
+                    ua.Nombre AS AnuladoPorNombre, ua.Apellido AS AnuladoPorApellido, ua.Email AS AnuladoPorEmail,
+                iq.nombre as IqNombre, iq.apellido as IqApellido, iq.dni as IqDni, iq.telefono as IqTelefono, iq.email as IqEmail,
+                pr.nombre as PNombre, pr.apellido as PApellido, pr.dni as PDni, pr.telefono as PTelefono, pr.email as PEmail
+                  FROM Pagos p
+                  LEFT JOIN Usuarios uc ON uc.IdUsuario = p.CreadoPor
+                  LEFT JOIN Usuarios ua ON ua.IdUsuario = p.AnuladoPor
+                  JOIN Contratos c ON p.IdContrato = c.IdContrato
+                  JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino
+                  JOIN Inmuebles im ON im.IdInmueble = c.IdInmueble
+                  JOIN Tipos t ON t.IdTipo = im.IdTipo
+                  JOIN Propietarios pr ON pr.IdPropietario = im.IdPropietario
+                  WHERE p.IdPago = @Id";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -264,9 +278,57 @@ namespace inmobiliaria.Repositories
                                 Monto = reader.GetDecimal(nameof(Contrato.Monto)),
                                 FechaDesde = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaDesde))),
                                 FechaHasta = DateOnly.FromDateTime(reader.GetDateTime(nameof(Contrato.FechaHasta))),
-                                Estado = reader.GetBoolean(nameof(Contrato.Estado))
-                            }
-
+                                Estado = reader.GetBoolean(nameof(Contrato.Estado)),
+                                Inquilino = new Inquilino
+                                {
+                                    Id = reader.GetInt32("IdInquilino"),
+                                    Nombre = reader.GetString("IqNombre"),
+                                    Apellido = reader.GetString("IqApellido"),
+                                    Dni = reader.GetString("IqDni"),
+                                    Telefono = reader.GetString("IqTelefono"),
+                                    Email = reader.GetString("IqEmail")
+                                },
+                                Inmueble = new Inmueble
+                                {
+                                    Id = reader.GetInt32("IdInmueble"),
+                                    Tipo = new Tipo
+                                    {
+                                        Id = reader.GetInt32("IdTipo"),
+                                        Descripcion = reader.GetString("Descripcion"),
+                                    },
+                                    Uso = reader.GetString("Uso"),
+                                    Ambientes = reader.GetInt32("Ambientes"),
+                                    Precio = reader.GetDecimal("Precio"),
+                                    Coordenadas = reader.GetString("Coordenadas"),
+                                    Estado = reader.GetBoolean("Estado"),
+                                    Direccion = reader.GetString("Direccion"),
+                                    Propietario = new Propietario
+                                    {
+                                        Id = reader.GetInt32("IdPropietario"),
+                                        Nombre = reader.GetString("PNombre"),
+                                        Apellido = reader.GetString("PApellido"),
+                                        Dni = reader.GetString("PDni"),
+                                        Telefono = reader.GetString("PTelefono"),
+                                        Email = reader.GetString("PEmail")
+                                    }
+                                }
+                            },
+                            CreadoPorDTO = new UsuarioAuditoriaDTO
+                            {
+                                Id = reader.GetInt32("CreadoPor"),
+                                Nombre = reader.GetString("CreadoPorNombre"),
+                                Apellido = reader.GetString("CreadoPorApellido"),
+                                Email = reader.GetString("CreadoPorEmail")
+                            },
+                            AnuladoPorDTO = reader["AnuladoPor"] is DBNull ? null : new UsuarioAuditoriaDTO
+                            {
+                                Id = reader.GetInt32("AnuladoPor"),
+                                Nombre = reader.GetString("AnuladoPorNombre"),
+                                Apellido = reader.GetString("AnuladoPorApellido"),
+                                Email = reader.GetString("AnuladoPorEmail")
+                            },
+                            AnuladoPor = reader.IsDBNull(reader.GetOrdinal("AnuladoPor")) ? null : reader.GetInt32("AnuladoPor"),
+                            CreadoPor = reader.GetInt32(nameof(Pago.CreadoPor))
                         };
                     }
                     connection.Close();

@@ -30,15 +30,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.CorrespondeAMes)
             </th>
-        @if(User.IsInRole("Administrador"))
-        {
             <th>
-                @Html.DisplayNameFor(model => model.CreadoPor)
+                @Html.DisplayNameFor(model => model.Estado)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AnuladoPor)
-            </th>
-        }
             <th>Acción</th>
         </tr>
     </thead>
@@ -57,8 +51,12 @@
         <p id="inquilino"></p>
         <p id="inmueble"></p>
         <p id="monto"></p>
-        <p id="fecha_desde"></p>
-        <p id="fecha_hasta"></p>
+        <p id="fecha_pago"></p>
+        <p id="concepto"></p>
+        @if(User.IsInRole("Administrador")){
+        <p id="creado_por"></p>
+        <p id="anulado_por"></p>
+          }
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -102,19 +100,15 @@
         <td>${p.numeroPago ?? ''}</td>
         <td>${p.idContrato ?? ''}</td>
         <td>${p.fecha}</td>
-        <td>${p.correspondeAMes}</td>
-        
-        @if(User.IsInRole("Administrador"))
-        {
-        <td>${p.creadoPor}</td>
-        <td>${p.anuladoPor}</td>
-        }
+        <td>${p.correspondeAMes == null ? "No" : p.correspondeAMes}</td>
+        <td>${p.estado == false ? "Anulado" : ""}</td>
         <td>
 
         @if(User.IsInRole("Administrador"))
         {
           <a class="btn btn-danger btn-sm" href="/Pagos/Eliminar/${p.id}">Eliminar</a>
 }
+          <button class="btn btn-primary" type="button" onclick="cargarDatos(${p.id})">Detalle</button>
         </td>
       </tr>
     `;
@@ -146,16 +140,22 @@
       })
         function cargarDatos(item){
 
-            const datos = fetch('/Contratos/BuscarPorId/' + item)
+            const datos = fetch('/Pagos/BuscarPorId/' + item)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                document.getElementById('propietario').innerHTML = "<b>Propietario</b>: <br>" + data.inmueble.propietario.nombre + " " + data.inmueble.propietario.apellido + " (" + data.inmueble.propietario.dni + ")";
-                document.getElementById('inquilino').innerHTML = "<b>Inquilino</b>: <br>" + data.inquilino.nombre + " " + data.inquilino.apellido + " (" + data.inquilino.dni + ")";
-                document.getElementById('inmueble').innerHTML = "<b>Inmueble</b>: <br> " + data.inmueble.direccion;
+                document.getElementById('propietario').innerHTML = "<b>Propietario</b>: <br>" + data.contrato.inmueble.propietario.nombre + " " + data.contrato.inmueble.propietario.apellido + " (" + data.contrato.inmueble.propietario.dni + ")";
+                document.getElementById('inquilino').innerHTML = "<b>Inquilino</b>: <br>" + data.contrato.inquilino.nombre + " " + data.contrato.inquilino.apellido + " (" + data.contrato.inquilino.dni + ")";
+                document.getElementById('inmueble').innerHTML = "<b>Inmueble</b>: <br> " + data.contrato.inmueble.direccion;
                 document.getElementById('monto').innerHTML = "<b>Monto</b>: <br>" + data.monto;
-                document.getElementById('fecha_desde').innerHTML = "<b>Fecha inicio</b>: <br>" + data.fechaDesde;
-                document.getElementById('fecha_hasta').innerHTML = "<b>Fecha hasta</b>: <br>" + data.fechaHasta;
+                document.getElementById('fecha_pago').innerHTML = "<b>Fecha de pago</b>: <br>" + data.fecha;
+                document.getElementById('concepto').innerHTML = "<b>Concepto</b>: <br>" + data.concepto;
+
+                const creadoPor = document.getElementById("creado_por")
+                if(creadoPor) creadoPor.innerHTML = "<b>Creado por</b>: <br>" + data.creadoPorDTO.email;
+                const anuladoPor= document.getElementById("anulado_por")
+                if(anuladoPor) anuladoPor.innerHTML = "<b>Anulado por</b>: <br>" + (data.anuladoPorDTO == null ? "" : data.anuladoPorDTO.email);
+        
                 $('#detalle').modal('show');
             })
             .catch(error => {
