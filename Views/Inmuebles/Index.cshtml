@@ -20,14 +20,15 @@
     <select id="select-filtros">
       <option selected value=1>Disponbles</option>
       <option value=2>No disponibles</option>
-      <option value=3>Disponbles por fecha</option>
+      <option value=3>Por fecha</option>
+      <option value=4>Disponbles y por fecha</option>
     </select>
         <div id="filtro-periodo" class="d-none">
           
       <label class="form-control">Periodo</label>
       <label class="form-control">fecha inicio</label>
       <input class="form-control" type="date" id="filtro-periodo-desde">
-      <label class="form-control">fecha desde</label>
+      <label class="form-control">fecha hasta</label>
       <input class="form-control" type="date" id="filtro-periodo-hasta">
         </div>
         <button class="btn btn-primary" id="btn-filtrar" onclick="filtrar()">Filtrar</button>
@@ -160,7 +161,7 @@ const fechaHasta = document.getElementById('filtro-periodo-hasta');
 const selectFiltros = document.getElementById('select-filtros');
 const filtroPeriodo = document.getElementById('filtro-periodo');
 selectFiltros.addEventListener('change', (e) => {
-      if(e.target.value == 3){
+      if(e.target.value == 3 || e.target.value == 4){
           filtroPeriodo.classList.remove('d-none');
       }else{
         filtroPeriodo.classList.add('d-none');
@@ -177,7 +178,10 @@ let url = "/Inmuebles/Listar";
           url = url + "?disponibles=false";
           break;
         case "3":
-          url = url + "?disponibles=true&fechaDesde="+fechaDesde.value + "&fechaHasta"+fechaHasta.value
+          url = url + "?fechaDesde="+fechaDesde.value + "&fechaHasta="+fechaHasta.value
+          break;
+        case "4":
+          url = url + "?disponibles=true&fechaDesde="+fechaDesde.value + "&fechaHasta="+fechaHasta.value
           break;
       }
       fetch(url)

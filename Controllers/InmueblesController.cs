@@ -242,9 +242,13 @@ namespace inmobiliaria.Controllers
             try
             {
                 IList<Inmueble> inmuebles = new List<Inmueble>();
-                if (disponibles != null)
+                if (disponibles != null && fechaDesde == null && fechaHasta == null)
                 {
                     inmuebles = repositorioInmueble.ListarPorDisponible(disponibles.Value);
+                }
+                else if (disponibles == true && fechaDesde != null && fechaHasta != null)
+                {
+                    inmuebles = repositorioInmueble.ListarDisponiblesYDesocupados(fechaDesde.Value, fechaHasta.Value);
                 }
                 else if (fechaDesde != null && fechaHasta != null)
                 {

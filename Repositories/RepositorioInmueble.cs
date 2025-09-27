@@ -493,6 +493,73 @@ namespace inmobiliaria.Repositories
             }
             return res;
         }
+
+        public IList<Inmueble> ListarDisponiblesYDesocupados(DateOnly fechaDesde, DateOnly fechaHasta)
+        {
+            IList<Inmueble> res = new List<Inmueble>();
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"
+                SELECT i.*, t.*, p.*
+                FROM Inmuebles i
+                JOIN Tipos t ON i.IdTipo = t.IdTipo
+                JOIN Propietarios p ON i.IdPropietario = p.IdPropietario
+                LEFT JOIN Contratos c
+                ON c.IdInmueble = i.IdInmueble
+                AND c.Estado = 1
+                AND i.Disponible = true 
+                AND c.FechaDesde <= @FechaHasta
+                AND c.FechaHasta  >= @FechaDesde
+                WHERE i.Estado = 1
+                AND i.Disponible = true
+                AND c.IdContrato IS NULL;
+                ;
+                ";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.Parameters.AddWithValue("@FechaDesde", fechaDesde.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@FechaHasta", fechaHasta.ToString("yyyy-MM-dd"));
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res.Add(new Inmueble
+                        {
+                            Id = reader.GetInt32("IdInmueble"),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            Uso = reader.GetString(nameof(Inmueble.Uso)),
+                            Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                            Estado = reader.GetBoolean(nameof(Inmueble.Estado)),
+                            Propietario = new Propietario
+                            {
+                                Id = reader.GetInt32("IdPropietario"),
+                                Nombre = reader.GetString(nameof(Propietario.Nombre)),
+                                Apellido = reader.GetString(nameof(Propietario.Apellido)),
+                                Dni = reader.GetString(nameof(Propietario.Dni)),
+                                Telefono = reader.GetString(nameof(Propietario.Telefono)),
+                                Email = reader.GetString(nameof(Propietario.Email)),
+                                Direccion = reader.GetString(nameof(Propietario.Direccion))
+                            },
+
+                            Tipo = new Tipo
+                            {
+                                Id = reader.GetInt32("IdTipo"),
+                                Descripcion = reader.GetString(nameof(Tipo.Descripcion)),
+                            }
+                        });
+                    }
+                    connection.Close();
+                }
+
+            }
+            return res;
+        }
     }
 
 
