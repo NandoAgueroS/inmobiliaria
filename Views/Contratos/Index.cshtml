@@ -26,6 +26,10 @@
         <p id="monto"></p>
         <p id="fecha_desde"></p>
         <p id="fecha_hasta"></p>
+        @if(User.IsInRole("Administrador")){
+        <p id="creado_por"></p>
+        <p id="anulado_por"></p>
+          }
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -47,6 +51,10 @@
                 document.getElementById('monto').innerHTML = "<b>Monto</b>: <br>" + data.monto;
                 document.getElementById('fecha_desde').innerHTML = "<b>Fecha inicio</b>: <br>" + data.fechaDesde;
                 document.getElementById('fecha_hasta').innerHTML = "<b>Fecha hasta</b>: <br>" + data.fechaHasta;
+                const creadoPor = document.getElementById("creado_por")
+                if(creadoPor) creadoPor.innerHTML = "<b>Creado por</b>: <br>" + data.creadoPorDTO.email;
+                const anuladoPor= document.getElementById("anulado_por")
+                if(anuladoPor) anuladoPor.innerHTML = "<b>Anulado por</b>: <br>" + (data.anuladoPorDTO == null ? "" : data.anuladoPorDTO.email);
                 $('#detalle').modal('show');
             })
             .catch(error => {

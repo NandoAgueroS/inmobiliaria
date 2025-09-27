@@ -47,7 +47,7 @@
                         </li>
                         @if (User.IsInRole("Administrador")){
                           <li class="nav-item">
-                              <a class="nav-link active" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuario</a>
+                              <a class="nav-link active" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
                           </li>
                         }
                                                 <li class="nav-item">
@@ -65,7 +65,7 @@
                                             @{
                                                 var avatar = User.FindFirst("Avatar")?.Value;
                                                 var avatarUrl = string.IsNullOrEmpty(avatar)
-                                                    ? "https://ui-avatars.com/api/?name=" + User.FindFirst("FullName").Value + "&background=00ff73&color=fff&size=32"
+                                                    ? "https://ui-avatars.com/api/?name=" + User.FindFirst("FullName").Value + "&background=07633d&color=fff&size=32"
                                                     : avatar;
                                             }
                                             @User.Identity.Name

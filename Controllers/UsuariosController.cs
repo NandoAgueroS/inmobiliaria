@@ -208,7 +208,10 @@ namespace inmobiliaria.Controllers
 
 
                 TempData["Accion"] = Accion.Modificacion.value;
-                return RedirectToAction(nameof(Perfil));
+                if (User.Identity.Name == usuario.Email)
+                    return RedirectToAction(nameof(Perfil));
+                else
+                    return RedirectToAction(nameof(Perfil), new { id = usuario.Id });
             }
             catch (Exception ex)
             {
@@ -233,14 +236,18 @@ namespace inmobiliaria.Controllers
                     usuarioOriginal.Apellido = usuario.Apellido;
                     usuarioOriginal.Email = usuario.Email;
                 }
-                repositorioUsuario.Modificacion(usuario);
+                if (User.IsInRole("Administrador"))
+                {
+                    usuarioOriginal.Rol = usuario.Rol;
+                }
+                repositorioUsuario.Modificacion(usuarioOriginal);
                 if (User.Identity.Name == mailViejo)
                 {
                     var claims = new List<Claim>
                         {
                             new Claim(ClaimTypes.Name, usuario.Email),
                             new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
-                            new Claim(ClaimTypes.Role, usuarioOriginal.RolNombre),
+                            new Claim(ClaimTypes.Role, usuario.RolNombre),
                             new Claim("Avatar", usuarioOriginal.Avatar ?? ""),
                             new Claim("IdUsuario", usuarioOriginal.Id.Value.ToString()),
                         };
@@ -248,7 +255,10 @@ namespace inmobiliaria.Controllers
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
                 }
                 TempData["Accion"] = Accion.Modificacion.value;
-                return RedirectToAction(nameof(Perfil));
+                if (User.Identity.Name == usuario.Email)
+                    return RedirectToAction(nameof(Perfil));
+                else
+                    return RedirectToAction(nameof(Perfil), new { id = usuario.Id });
             }
             catch (Exception ex)
             {
@@ -264,6 +274,8 @@ namespace inmobiliaria.Controllers
             ViewBag.Roles = Usuario.ObtenerRoles();
             if (TempData.ContainsKey("Error"))
                 ViewBag.Error = TempData["Error"];
+            if (TempData.ContainsKey("Accion"))
+                ViewBag.Accion= TempData["Accion"];
             Usuario usuario;
             if (id == 0)
                 usuario = repositorioUsuario.ObtenerPorEmail(User.Identity.Name);
@@ -323,7 +335,11 @@ namespace inmobiliaria.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
             }
 
-            return RedirectToAction(nameof(Index));
+            TempData["Accion"] = Accion.Modificacion.value;
+                if (User.Identity.Name == usuario.Email)
+                    return RedirectToAction(nameof(Perfil));
+                else
+                    return RedirectToAction(nameof(Perfil), new { id = usuario.Id });
         }
         [Authorize(Policy = "Administrador")]
         public IActionResult Eliminar(int id)

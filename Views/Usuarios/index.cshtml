@@ -21,6 +21,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
+            <th>
+                Rol
+            </th>
             <th>Acción</th>
         </tr>
     </thead>
@@ -36,6 +39,9 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RolNombre)
                 </td>
                 
                 <div class="btn-group" role="group">

@@ -19,7 +19,7 @@ namespace inmobiliaria.Repositories
                 
                 {nameof(Usuario.Nombre)},
                 {nameof(Usuario.Apellido)},
-                {nameof(Usuario.Email )},
+                {nameof(Usuario.Email)},
                 {nameof(Usuario.Clave)},
                 {nameof(Usuario.Avatar)},
                 {nameof(Usuario.Rol)},
@@ -36,13 +36,13 @@ namespace inmobiliaria.Repositories
                         command.Parameters.AddWithValue("@Avatar", "");
                     else
                         command.Parameters.AddWithValue("@Avatar", m.Avatar);
-                    command.Parameters.AddWithValue("@Rol",m.Rol);
+                    command.Parameters.AddWithValue("@Rol", m.Rol);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     m.Id = res;
                     connection.Close();
                 }
-                
+
             }
             return res;
         }
@@ -50,7 +50,7 @@ namespace inmobiliaria.Repositories
         public int Baja(int id)
         {
             int res = -1;
-            using(MySqlConnection connection = new MySqlConnection(connectionString))
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"UPDATE Usuarios SET {nameof(Usuario.Estado)} = false WHERE IdUsuario = @Id";
 
@@ -133,7 +133,7 @@ namespace inmobiliaria.Repositories
 
         public int Modificacion(Usuario m)
         {
-           int res = -1;
+            int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"UPDATE Usuarios SET
@@ -151,7 +151,10 @@ namespace inmobiliaria.Repositories
                     command.Parameters.AddWithValue("@Apellido", m.Apellido);
                     command.Parameters.AddWithValue("@Email", m.Email);
                     command.Parameters.AddWithValue("@Clave", m.Clave);
-                    command.Parameters.AddWithValue("@Avatar", m.Avatar);
+                    if (String.IsNullOrEmpty(m.Avatar))
+                        command.Parameters.AddWithValue("@Avatar", "");
+                    else
+                        command.Parameters.AddWithValue("@Avatar", m.Avatar);
                     command.Parameters.AddWithValue("@Rol", m.Rol);
                     command.Parameters.AddWithValue("@Id", m.Id);
 
@@ -160,7 +163,7 @@ namespace inmobiliaria.Repositories
                     connection.Close();
 
                 }
-           }
+            }
             return res;
         }
 
@@ -199,7 +202,7 @@ namespace inmobiliaria.Repositories
 
         public int Reactivar(int id)
         {
-             int res = -1;
+            int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"UPDATE Usuarios SET {nameof(Usuario.Estado)} = true WHERE IdUsuario = @Id";

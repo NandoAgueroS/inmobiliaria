@@ -18,13 +18,19 @@
                         }
                         else
                         {
-                            <img src="https://ui-avatars.com/api/?name=@Model.Nombre&background=00ff73&color=fff&size=32" alt="Avatar por defecto" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
+                            <img src="https://ui-avatars.com/api/?name=@Model.Nombre&background=07633d&color=fff&size=32" alt="Avatar por defecto" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
                         }
                     </a>                   
                     <br />
                     <div class="d-grid gap-2 col-6 mx-auto">
-                      <a class="btn btn-sm btn-danger" asp-action="EliminarAvatar" asp-controller="Usuarios" asp-route-id="@Model.Id"> Eliminar Avatar</a>
-                      <a class="btn btn-sm btn-warning" href="#" data-bs-toggle="modal" data-bs-target="#avatarModal" title="Cambiar avatar"> Cambiar Avatar </a>
+                        @if (!string.IsNullOrEmpty(Model.Avatar))
+                        {
+                        <a class="btn btn-sm btn-danger" asp-action="EliminarAvatar" asp-controller="Usuarios" asp-route-id="@Model.Id"> Eliminar Avatar</a>
+                        <a class="btn btn-sm btn-warning" href="#" data-bs-toggle="modal" data-bs-target="#avatarModal" title="Cambiar avatar"> Cambiar Avatar </a>
+                        }
+                      else{
+                        <a class="btn btn-sm btn-warning" href="#" data-bs-toggle="modal" data-bs-target="#avatarModal" title="Cambiar avatar"> Establecer un Avatar </a>
+                      }
                     </div>
                     
                     <h4 class="fw-bold">@Model.Nombre @Model.Apellido</h4>
@@ -46,8 +52,6 @@
                     <form asp-controller="Usuarios" asp-action="EditarPerfil" method="POST">
                         <div class="text-danger" asp-validation-summary="ModelOnly"></div>
                         <input type="hidden" asp-for="Id" />
-                        <input type="hidden" asp-for="Clave" />
-                        <input type="hidden" asp-for="Rol" />
                         <input type="hidden" asp-for="Avatar" />
 
                         <div class="row">

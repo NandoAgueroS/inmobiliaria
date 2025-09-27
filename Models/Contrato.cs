@@ -32,7 +32,9 @@ namespace inmobiliaria.Models
 
         public DateOnly? FechaAnulado { get; set; }
         public int? AnuladoPor { get; set; }
+        public UsuarioAuditoriaDTO? AnuladoPorDTO { get; set; }
         public int CreadoPor { get; set; }
+        public UsuarioAuditoriaDTO? CreadoPorDTO { get; set; }
 
         public bool Estado { get; set; }
     }

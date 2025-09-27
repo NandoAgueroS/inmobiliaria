@@ -21,15 +21,10 @@
             <th>
                 @Html.DisplayNameFor(model => model.FechaHasta)
             </th>
-            @if(User.IsInRole("Administrador")){
 
             <th>
-                @Html.DisplayNameFor(model => model.CreadoPor)
+                @Html.DisplayNameFor(model => model.Estado)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AnuladoPor)
-            </th>
-        }
             <th>Acción</th>
         </tr>
     </thead>
@@ -49,15 +44,9 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.FechaHasta)
                 </td>
-            @if(User.IsInRole("Administrador")){
-
-            <th>
-                @Html.DisplayFor(model => item.CreadoPor)
-            </th>
-            <th>
-                @Html.DisplayFor(model => item.AnuladoPor)
-            </th>
-        }
+                <td>
+                    @(item.Estado == false ? "Anulado" : "")
+                </td>
                 <div class="btn-group" role="group">
                     <td>
                         <a class="btn btn-warning" asp-controller="Contratos" asp-action="Formulario" asp-route-id="@item.Id">Editar</a>

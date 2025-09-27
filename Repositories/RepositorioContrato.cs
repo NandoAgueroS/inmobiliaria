@@ -160,12 +160,16 @@ namespace inmobiliaria.Repositories
                 im.*,
                 iq.nombre as IqNombre, iq.apellido as IqApellido, iq.dni as IqDni, iq.telefono as IqTelefono, iq.email as IqEmail,
                 p.nombre as PNombre, p.apellido as PApellido, p.dni as PDni, p.telefono as PTelefono, p.email as PEmail,
+                uc.Nombre AS CreadoPorNombre, uc.Apellido AS CreadoPorApellido, uc.Email AS CreadoPorEmail,
+                ua.Nombre AS AnuladoPorNombre, ua.Apellido AS AnuladoPorApellido, ua.Email AS AnuladoPorEmail,
                 t.*
                 FROM Contratos c 
                 JOIN Inquilinos iq ON c.IdInquilino = iq.IdInquilino 
                 JOIN Inmuebles im ON c.IdInmueble = im.IdInmueble 
                 JOIN Tipos t ON t.IdTipo = im.IdTipo 
                 JOIN Propietarios p ON im.IdPropietario = p.IdPropietario
+                LEFT JOIN Usuarios uc ON uc.IdUsuario = c.CreadoPor
+                LEFT JOIN Usuarios ua ON ua.IdUsuario = c.AnuladoPor
                 WHERE c.IdContrato = @Id";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -220,6 +224,20 @@ namespace inmobiliaria.Repositories
                                     Telefono = reader.GetString("PTelefono"),
                                     Email = reader.GetString("PEmail")
                                 }
+                            },
+                            CreadoPorDTO = new UsuarioAuditoriaDTO
+                            {
+                                Id = reader.GetInt32("CreadoPor"),
+                                Nombre = reader.GetString("CreadoPorNombre"),
+                                Apellido = reader.GetString("CreadoPorApellido"),
+                                Email = reader.GetString("CreadoPorEmail")
+                            },
+                            AnuladoPorDTO = reader["AnuladoPor"] is DBNull ? null : new UsuarioAuditoriaDTO
+                            {
+                                Id = reader.GetInt32("AnuladoPor"),
+                                Nombre = reader.GetString("AnuladoPorNombre"),
+                                Apellido = reader.GetString("AnuladoPorApellido"),
+                                Email = reader.GetString("AnuladoPorEmail")
                             }
                         };
                     }
