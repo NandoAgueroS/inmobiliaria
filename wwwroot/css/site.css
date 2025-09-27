@@ -75,3 +75,9 @@ display: grid;                                 /* Activamos Grid */
 .contenedor-botones-crear div {
   width: fit-content;
 }
+.hero-inmo{
+  min-height: 100vh;
+  background: 
+    linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35)),
+    url('/images/imagen-inmobiliaria.webp') center center / cover no-repeat;
+}
