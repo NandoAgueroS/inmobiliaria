@@ -5,7 +5,7 @@ using MySql.Data.MySqlClient;
 namespace inmobiliaria.Repositories
 {
 
-    public class RepositorioTipo: RepositorioBase, IRepositorioTipo
+    public class RepositorioTipo : RepositorioBase, IRepositorioTipo
     {
 
         public RepositorioTipo(IConfiguration configuration) : base(configuration)
@@ -74,8 +74,8 @@ namespace inmobiliaria.Repositories
             return res;
         }
 
-    
-    public IList<Tipo> ListarTodos()
+
+        public IList<Tipo> ListarTodos()
         {
             IList<Tipo> res = new List<Tipo>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -99,12 +99,13 @@ namespace inmobiliaria.Repositories
             return res;
         }
 
-        public Tipo BuscarPorId(int id) {
+        public Tipo BuscarPorId(int id)
+        {
 
             Tipo res = null;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM Tipos WHERE c.IdTipo = @Id AND Estado = true";
+                string query = $@"SELECT * FROM Tipos WHERE IdTipo = @Id AND Estado = true";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -120,10 +121,10 @@ namespace inmobiliaria.Repositories
                             Id = reader.GetInt32("IdTipo"),
                             Descripcion = reader.GetString("Descripcion")
                         };
-                             
+
                     }
                 }
-                
+
             }
             return res;
         }

@@ -1,0 +1,23 @@
+@model inmobiliaria.Models.Tipo
+@{
+    ViewData["Title"] = Model == null ? "Registrar Tipo" : "Editar Tipo";
+    Model.Id = Model == null ? 0 : Model.Id;
+}
+<form asp-action="Guardar" method="POST">
+
+    <div class="form-group">
+    <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+    <div>
+        <label asp-for="Descripcion"></label>
+        <input class="form-control" asp-for="Descripcion">
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+    <div>
+        <input type="hidden" asp-for="Id">
+    </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
