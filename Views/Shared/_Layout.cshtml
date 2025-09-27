@@ -11,61 +11,75 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/inmobiliaria.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="~/css/index.css" >
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">inmobiliaria</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                <a class="navbar-brand" href="#">Inmobiliaria</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
                 </button>
-          
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-    @if (User?.Identity?.IsAuthenticated == true)
-          {
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent"> 
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Inquilinos" asp-action="Index">Inquilinos</a>
+                            <a class="nav-link active" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Contratos" asp-action="Index">Contratos</a>
+                            <a class="nav-link active" asp-area="" asp-controller="Inquilinos" asp-action="Index">Inquilinos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Propietarios" asp-action="Index">Propietarios</a>
+                            <a class="nav-link active" asp-area="" asp-controller="Contratos" asp-action="Index">Contratos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Inmuebles" asp-action="Index">Inmuebles</a>
+                            <a class="nav-link active" asp-area="" asp-controller="Propietarios" asp-action="Index">Propietarios</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuario</a>
+                            <a class="nav-link active" asp-area="" asp-controller="Inmuebles" asp-action="Index">Inmuebles</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Pagos" asp-action="Index">Pagos</a>
+                            <a class="nav-link active" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
- 
+                        <li class="nav-item">
+                            <a class="nav-link active" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuario</a>
+                        </li>
+                        <li class="nav-item">
+                             <button id="themeToggle" class="btn btn-outline-dark ms-auto">🌙</button>
+                        </li>
                     </ul>
-            }
-<div class="col-md-6 mb-3">
+                            @if (User?.Identity?.IsAuthenticated == true)
+                            {
+                                <ul class="navbar-nav ms-auto mb-lg-0">
+                                    <li class="nav-item dropdown ms-auto">
+                                        <a class="nav-link dropdown-toggle " href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            @{
+                                                var avatar = User.FindFirst("Avatar")?.Value;
+                                                var avatarUrl = string.IsNullOrEmpty(avatar)
+                                                    ? Url.Content("~/images/default-avatar.png")
+                                                    : avatar;
+                                            }
+                                            @User.Identity.Name
+                                            <img src="@(avatarUrl)" alt="Avatar" class="rounded-circle img-fluid"
+                                                style="width: 24px; height: 24px; object-fit: cover;">
+                                        </a>
+                                         <ul class="navbar-nav">
+                                            <li class="nav-item dropdown ">
+                                                <ul class="dropdown-menu ">
+                                                    <li><a class="dropdown-item" asp-action="Perfil" asp-controller="Usuarios">Perfil</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item" asp-controller="Usuarios" asp-action="Logout" class="btn btn-danger">Salir</a></li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                
+                            }
+            <div >
 
-    @if (User?.Identity?.IsAuthenticated == true)
-    {
-        <a asp-action="Perfil" asp-controller="Usuarios">
-        <label class="form-label fw-semibold text-muted">Email</label>
-        <p class="fs-5">@User.Identity.Name</p>
-
-            @{var avatar = User.FindFirst("Avatar")?.Value;
-            var avatarUrl = string.IsNullOrEmpty(avatar)
-                ? "https://ui-avatars.com/api/?name=" + User.FindFirst("FullName").Value+"Nombre&background=00ff73&color=fff&size=32"
-                : avatar;}
-
-        <img src="@(avatarUrl)" alt="Avatar" class="rounded-circle img-fluid"
-             style="width: 120px; height: 120px; object-fit: cover;">
-             </a>
-            <a asp-controller="Usuarios" asp-action="Logout" class="btn btn-danger">Salir</a>
-              }
-</div>
+                
             </div>
         </nav>
     </header>
@@ -80,6 +94,25 @@
             &copy; 2025 - inmobiliaria - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+    <script>
+        const toggle = document.getElementById("themeToggle");
+
+        // 🚀 Al cargar, leemos el tema guardado en localStorage
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-bs-theme", savedTheme);
+        toggle.textContent = savedTheme === "light" ? "🌙" : "☀️";
+
+        // 🎛️ Evento de cambio de tema
+        toggle.addEventListener("click", () => {
+            let currentTheme = document.documentElement.getAttribute("data-bs-theme");
+            let newTheme = currentTheme === "light" ? "dark" : "light";
+
+            document.documentElement.setAttribute("data-bs-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+
+            toggle.textContent = newTheme === "light" ? "🌙" : "☀️";
+        });
+    </script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
