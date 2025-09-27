@@ -43,9 +43,8 @@
                         @if (User.IsInRole("Administrador")){
 
                         <a class="btn btn-danger" asp-controller="Usuarios" asp-action="Eliminar" asp-route-id="@item.Id">Eliminar</a>
-                            <a class="btn btn-danger" asp-controller="Usuarios" asp-action="Perfil" asp-route-id="@item.Id">Editar</a>
+                            <a class="btn btn-warning" asp-controller="Usuarios" asp-action="Perfil" asp-route-id="@item.Id">Editar</a>
                         }
-                        <button class="btn btn-primary" type="button" onclick="cargarDatos(@item.Id)">Detalle</button>
                     </td>
                </div>
             </tr>
@@ -61,35 +60,3 @@
 
     </tbody>
 </table>
-@section Scripts {
-    <script type="text/javascript">
-
-    function eliminar(id){
-        fetch('/Usuarios/Eliminar/' + id)
-        .then(response => {
-            if (response.ok) {
-                window.location.reload();
-            } 
-    })}
-
-    function cargarDatos(item){
-
-            const datos = fetch('/Usuarios/BuscarPorId/' + item)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                document.getElementById('nombre').innerHTML = "<b>Nombre</b>: <br> " + data.nombre;
-                document.getElementById('apellido').innerHTML = "<b>Apellido</b>: <br> " + data.apellido;
-                document.getElementById('email').innerHTML = "<b>Email</b>: <br> " + data.email;
-                document.getElementById('avatar').innerHTML = "<b>Avatar</b>: <br> " + data.avatar;
-               
-                
-                $('#detalle').modal('show');
-            })
-            .catch(error => {
-                console.error('Error:', error)
-                toastr.error('No se pudieron cargar los detalles del usuario');
-                });
-        }
-    </script>
-}

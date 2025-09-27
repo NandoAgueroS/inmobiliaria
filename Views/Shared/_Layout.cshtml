@@ -40,6 +40,9 @@
                             <a class="nav-link active" asp-area="" asp-controller="Inmuebles" asp-action="Index">Inmuebles</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link active" asp-area="" asp-controller="Tipos" asp-action="Index">Tipos de inmueble</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link active" asp-area="" asp-controller="Pagos" asp-action="Index">Pagos</a>
                         </li>
                         <li class="nav-item">
@@ -60,7 +63,7 @@
                                             @{
                                                 var avatar = User.FindFirst("Avatar")?.Value;
                                                 var avatarUrl = string.IsNullOrEmpty(avatar)
-                                                    ? Url.Content("~/images/default-avatar.png")
+                                                    ? "https://ui-avatars.com/api/?name=" + User.FindFirst("FullName").Value + "&background=00ff73&color=fff&size=32"
                                                     : avatar;
                                             }
                                             @User.Identity.Name
