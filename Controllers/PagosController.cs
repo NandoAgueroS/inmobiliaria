@@ -161,7 +161,7 @@ namespace inmobiliaria.Controllers
         {
             try
             {
-                repositorioPago.Baja(id, int.Parse(User.FindFirst("AnuladoPor").Value));
+                repositorioPago.Baja(id, int.Parse(User.FindFirst("IdUsuario").Value));
                 TempData["Accion"] = Accion.Baja.value;
                 TempData["Id"] = id;
                 return RedirectToAction(nameof(Index));

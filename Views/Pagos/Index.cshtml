@@ -1,12 +1,12 @@
 @model IEnumerable<inmobiliaria.Models.Pago>
 @using inmobiliaria.Models
 @{
-    ViewData["Title"] = "Listado de Contratos";
+    ViewData["Title"] = "Listado de Pagos";
     Inquilino inquilino = ViewBag.Inquilino;
 }
 
 <div class="text-center">
-    <h1>Contratos</h1>
+    <h1>Pagos</h1>
 </div>
 <div>
     <a class="btn btn-primary" asp-controller="Contratos" asp-action="Formulario">Registrar</a>
@@ -116,11 +116,8 @@
 
         @if(User.IsInRole("Administrador"))
         {
-          <a class="btn btn-danger btn-sm" href="/Pagos/Eliminar/${p.Id}">Eliminar</a>
+          <a class="btn btn-danger btn-sm" href="/Pagos/Eliminar/${p.id}">Eliminar</a>
 }
-          <button type="button" class="btn btn-primary btn-sm" onclick="cargarDatos(${p.Id})">
-            Detalle
-          </button>
         </td>
       </tr>
     `;
