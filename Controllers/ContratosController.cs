@@ -74,7 +74,17 @@ namespace inmobiliaria.Controllers
             }
             try
             {
-                bool inmuebleDesocupado = repositorioInmueble.VerificarDesocupado(contrato.FechaDesde, contrato.FechaHasta, contrato.IdInmueble);
+                bool inmuebleDesocupado;
+                if (contrato.Id.HasValue)
+                {
+                    // Al editar, excluimos el contrato actual de la verificación
+                    inmuebleDesocupado = repositorioInmueble.VerificarDesocupado(contrato.FechaDesde, contrato.FechaHasta, contrato.IdInmueble, contrato.Id);
+                }
+                else
+                {
+                    inmuebleDesocupado = repositorioInmueble.VerificarDesocupado(contrato.FechaDesde, contrato.FechaHasta, contrato.IdInmueble);
+                }
+
                 bool inmuebleDisponible = repositorioInmueble.VerificarDisponible(contrato.IdInmueble);
                 if (inmuebleDesocupado && inmuebleDisponible)
                 {

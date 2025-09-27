@@ -39,7 +39,16 @@ body {
   gap: 20px;
   padding: 20px;
 }*/
+.toast-success {
+  background-color: #28a745 !important;
+  color: white !important;
+}
 
+/* Error */
+.toast-error {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
 .contenedor-card{
 display: grid;                                 /* Activamos Grid */
   grid-template-columns: repeat(auto-fill, minmax(250px, 3fr)); 

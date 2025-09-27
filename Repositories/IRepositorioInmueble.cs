@@ -9,6 +9,7 @@ namespace inmobiliaria.Repositories
         public IList<Inmueble> ListarPorDisponible(bool disponibles);
         public IList<Inmueble> ListarDesocupados(DateOnly fechaDesde, DateOnly fechaHasta);
         public bool VerificarDesocupado(DateOnly fechaDesde, DateOnly fechaHasta, int id);
+        public bool VerificarDesocupado(DateOnly fechaDesde, DateOnly fechaHasta, int idInmueble, int? idContrato);
         public bool VerificarDisponible(int id);
     }
 }

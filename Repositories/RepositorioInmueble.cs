@@ -291,6 +291,44 @@ namespace inmobiliaria.Repositories
             return res;
         }
 
+        public bool VerificarDesocupado(DateOnly fechaDesde, DateOnly fechaHasta, int idInmueble, int? idContrato)
+        {
+            bool res = false;
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"
+                SELECT i.IdInmueble
+                FROM Inmuebles i
+                LEFT JOIN Contratos c ON i.IdInmueble = c.IdInmueble
+                    AND c.Estado = 1
+                    AND c.FechaDesde < @FechaHasta
+                    AND c.FechaHasta > @FechaDesde
+                    AND (@IdContrato IS NULL OR c.IdContrato != @IdContrato)
+                WHERE i.IdInmueble = @IdInmueble
+                GROUP BY i.IdInmueble
+                HAVING COUNT(c.IdContrato) = 0;
+                ";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.Parameters.AddWithValue("@FechaDesde", fechaDesde.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@FechaHasta", fechaHasta.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                    command.Parameters.AddWithValue("@IdContrato", idContrato);
+
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        res = true;
+                    }
+                }
+                connection.Close();
+            }
+            return res;
+        }
+
         public bool VerificarDesocupado(DateOnly fechaDesde, DateOnly fechaHasta, int id)
         {
             bool res = false;
