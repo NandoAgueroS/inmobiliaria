@@ -235,11 +235,13 @@ namespace inmobiliaria.Controllers
             if (id == 0)
                 return View(nameof(Index));
             Contrato contratoOriginal = repositorioContrato.BuscarPorId(id);
+            int diferencia = contratoOriginal.FechaHasta.DayNumber - contratoOriginal.FechaDesde.DayNumber;
+            DateOnly nuevaFechaHasta = contratoOriginal.FechaHasta.AddDays(diferencia + 1);
             RenovarContratoDTO contratoDTO = new RenovarContratoDTO
             {
                 IdOriginal = contratoOriginal.Id.Value,
-                FechaDesde = contratoOriginal.FechaDesde,
-                FechaHasta = contratoOriginal.FechaHasta,
+                FechaDesde = contratoOriginal.FechaDesde.AddDays(1),
+                FechaHasta = nuevaFechaHasta,
                 NuevoMonto = contratoOriginal.Monto
             };
             ViewBag.IdInmueble = contratoOriginal.IdInmueble;
