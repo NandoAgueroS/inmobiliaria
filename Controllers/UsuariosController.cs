@@ -44,7 +44,7 @@ namespace inmobiliaria.Controllers
             return View(usuarios);
         }
 
-        [Authorize(Policy = "Adminitrador")]
+        [Authorize(Policy = "Administrador")]
         public IActionResult Crear(Usuario usuario)
         {
             if (!ModelState.IsValid)
